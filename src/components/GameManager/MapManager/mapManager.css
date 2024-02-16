@@ -1,0 +1,31 @@
+.mapManager {
+    background-color: lightgreen;
+    justify-self: center;
+
+    display: grid;
+    grid-template-columns: 64px 64px 64px 64px 64px;
+    grid-template-rows: 64px 64px 64px 64px 64px;
+}
+
+@media all and (min-width: 576px) {
+    .mapManager {
+        width: 320px;
+        height: 320px;
+    }
+
+
+}
+
+.mapCell {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: lemonchiffon;
+    border: solid 1px black;
+    border-radius: 8px;
+    box-sizing: border-box;
+}

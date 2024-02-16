@@ -1,0 +1,23 @@
+body, html {
+  padding: 0px;
+  margin: 0px;
+
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  background-color: gray;
+}
+
+#root {
+  text-align: center;
+}
+
+main {
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

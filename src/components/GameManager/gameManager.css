@@ -1,0 +1,95 @@
+@media all and (max-width: 576px) {
+    .gameManager {
+        width: 95vw;
+        grid-template-columns: 1fr;
+    }
+
+    .mainCol {
+        grid-row: 1;
+    }
+}
+
+@media all and (min-width: 576px) {
+    .gameManager {
+        width: 540px;
+        grid-template-columns: 320px 1fr;
+    }
+
+    .mainCol {
+        grid-column: 1 / 3;
+    }
+}
+
+@media all and (min-width: 768px) {
+    .gameManager {
+        width: 720px;
+    }
+}
+
+@media all and (min-width: 992px) {
+    .gameManager {
+        width: 960px;
+        grid-template-columns: 1fr 320px; 
+    }
+
+    .mainCol {
+        grid-column: 1;
+    }
+
+    .subCol {
+        grid-column: 1 / 3;
+    }
+}
+
+@media all and (min-width: 1200px) {
+    .gameManager {
+        width: 1140px;
+        grid-template-columns: 320px 1fr 320px; 
+    }
+
+    .mainCol {
+        grid-column: 2;
+    }
+
+    .sideCol {
+        grid-column: 3;
+    }
+
+    .subCol {
+        grid-column: 1;
+        grid-row: 1;
+    }
+}
+
+@media all and (min-width: 1400px) {
+    .gameManager {
+        width: 1320px;
+    }
+}
+
+.gameManager {
+    overflow: auto;
+    display: grid;
+    gap: 16px 16px;
+
+    background-color: brown;
+}
+
+.mainCol, .sideCol, .subCol {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    border: dashed 3px black;
+}
+
+.component {
+    margin-bottom: 16px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 30px;
+}
