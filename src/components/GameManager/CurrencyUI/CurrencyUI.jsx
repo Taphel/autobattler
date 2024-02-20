@@ -1,11 +1,14 @@
 // Imports
 import "./currencyUI.css";
 
-export default function GameManager() {
+// Libraries import
+import formatNumberString from "../../../libraries/formatNumberString.js";
+
+export default function CurrencyUI({ props }) {
 
     return (
         <div className="component currencyUI">
-            CurrencyUI
+            <h2>{formatNumberString(props.gold, "floor")}g</h2>
         </div>
     );
 }

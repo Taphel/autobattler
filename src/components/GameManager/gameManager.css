@@ -75,7 +75,7 @@
     display: grid;
     gap: 16px 16px;
 
-    background-color: brown;
+    background-color: #241527;
 }
 
 .mainCol, .sideCol, .subCol {
@@ -84,15 +84,14 @@
     justify-content: flex-start;
     align-items: center;
 
-    border: dashed 3px black;
+    background-color: #10141f;
 }
 
 .component {
     margin-bottom: 16px;
 
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-
-    font-size: 30px;
 }

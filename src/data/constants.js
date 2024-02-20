@@ -1,15 +1,16 @@
 const constants = {
     baseDamage: 1,
-    hpVarianceMin: 0.8,
-    hpVarianceMax: 1.2,
-    rewardVarianceMin: 0.9,
-    rewardVarianceMax: 1.1,
+    baseHP: 20,
+    enemyLevelHpScaling: 1.2,
+    hpVarianceMin: 0.9,
+    hpVarianceMax: 1.1,
+    baseReward: 10,
+    rewardVarianceMin: 0.95,
+    rewardVarianceMax: 1.05,
     bossUnlockCount: 1,
     baseBossSpawnRate: 0.05,
-    hpBossMultiplier: 10,
-    rewardBossMultiplier: 10,
     bossTimer: 30000,
-    upgradeLevelPriceScaling: 1.2
+    upgradeLevelPriceScaling: 1.05
 }
 
 export default constants;
