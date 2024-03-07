@@ -8,7 +8,7 @@ export default function CurrencyUI({ props }) {
 
     return (
         <div className="component currencyUI">
-            <h2>{formatNumberString(props.gold, "floor")}g</h2>
+            <h2>{formatNumberString(props.gold)} Gold</h2>
         </div>
     );
 }

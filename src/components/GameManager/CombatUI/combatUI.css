@@ -3,17 +3,89 @@
     width: 100%;
     height: 320px;
     color: white;
-    border-radius: 1em;
 
-    background-image: url("/public/backgrounds/cave.png");
+    background-image: url("/backgrounds/Lava2.png");
+    background-position-y: 75%;
+}
+
+.progressBar {
+    position: relative;
+
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.progressBar .progressText {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+
+}
+
+.progressBar .progressFill {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.progressBar .progressBackground {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: grey;
+    z-index: 0;
 }
 
 .dungeonData {
     width: 100%;
     background-color: rgba(0, 0, 0, 0.75);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
-.enemyStatus {
+.previousLevelButton, .nextLevelButton {
+    width: 20%;
+    border: none;
+    background-color: rgba(0,0,0,0);
+    color: white;
+    font-size: 2.5rem;
+
+    transition: transform 150ms, text-shadow 150ms;
+}
+
+.previousLevelButton:hover, .nextLevelButton:hover {
+    text-shadow: white 0 0 16px;
+}
+
+.previousLevelButton:active {
+    transform: translateX(-4px);
+}
+
+.nextLevelButton:active {
+    transform: translateX(4px);
+}
+
+.dungeonData h2 {
+    flex-grow: 1;
+}
+
+.dungeonData h5, .dungeonData .progressBar {
+    width: 100%;
+    height: 22px;
+    margin: 0;
+}
+
+.dungeonData .progressBar .progressFill {
+    background-color: #4f8fba;
+}
+
+.combatStatus {
     width: 100%;
 
     flex-grow: 1;
@@ -24,56 +96,43 @@
     align-items: center;
 }
 
-.enemyStatus .enemySprite {
-    width: 100%;
+.combatStatus .combatScene {
     flex-grow: 1;
-    background-image: url("/public/sprites/goblinidle.gif");
-    background-repeat: no-repeat;
-    background-size: 25%;
-    background-position: center;
-    image-rendering: pixelated;
+    display: flex;
 }
 
-.enemyStatus .progressBar {
-    position: relative;
+.playerSprite, .enemySprite {
+    width: 64px;
+    height: 64px;
+    margin: auto;
+    
+    image-rendering: pixelated;
+    box-sizing: border-box;
+    background-size: 100%;
+}
+
+.playerSprite {
+    margin-right: 32px;
+}
+
+.enemySprite {
+    margin-left: 32px;
+}
+
+.combatStatus .progressBar {
     width: 80%;
     height: 24px;
-    border: solid 3px black;
     border-radius: 0.6em;
-
-    display: flex;
-    justify-content: start;
-    align-items: center;
-
     margin-bottom: 8px;
 }
 
-.enemyStatus .progressBar .progressText {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-
-}
-
-.enemyStatus .progressBar .progressFill {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+.combatStatus .progressBar .progressFill {
     background-color: #a53030;
     border-radius: 0.6em;
-    z-index: 1;
-
-    transition: width 200ms;
 }
 
-.enemyStatus .progressBar .progressBackground {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: grey;
+.combatStatus .progressBar .progressBackground {
     border-radius: 0.6em;
-    z-index: 0;
 }
 
 .enemyData {

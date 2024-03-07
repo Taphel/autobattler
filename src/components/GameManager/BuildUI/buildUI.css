@@ -1,27 +1,191 @@
 .buildUI {
-    background-color: lightblue;
+    color: white;
     justify-self: center;
 
     display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    width: 100%;
+}
+
+.buildUI aside {
+    height: 100%;
+    display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
 
-    overflow-y: auto;
-
-    width: 100%;
-    height: 320px;
+    padding-top: 56px;
 }
 
-.upgradeButton {
-    width: 95%;
-    min-height: 64px;
+.buildTabButton {
+    width: 64px;
+    height: 64px;
 
     display: flex;
     justify-content: center;
     align-items: center;
 
-    background-color:azure;
-    border: solid 1px black;
+    image-rendering: pixelated;
+    background-size: 100%;
+    border: none;
+    background-color: rgba(0,0,0,0);
+    border-radius: 8px;
+    padding: 0;
+    margin: 0 8px 16px 0;
+
+    transition: transform 150ms;
+}
+
+.buildTabButton:active {
+    transform: translateY(3px);
+}
+
+.purchaseTab {
+    background-color: #172038;
+    flex-grow: 1;
+}
+
+.purchaseTab header {
+    background-color: #3c5e8b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+    height: 48px;
+}
+
+.purchaseTab header h3 {
+    flex-grow: 1;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    margin-left: 12px;
+}
+
+.purchaseModeButton {
+    height: 32px;
+    width: 30%;
+    padding: 6px;
+    margin: 6px;
+
+    border: outset 2px white;
+    border-radius: 0.25em;
+    color: white;
+    background-color: #4f8fba;
+
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.purchaseModeButton:active {
+    background-color: #253a5e;
+    border-style: inset;
+}
+
+.unitList {
+    /* min-height: 352px; */
+    height: 712px;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-flow: rows;
+    grid-auto-rows: 64px;
+    row-gap: 8px;
+    margin: 8px;
+}
+
+.upgradeList {
+    margin: 8px 0;
+    height: 712px;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+    grid-auto-flow: rows;
+    grid-auto-rows: 64px;
+    row-gap: 8px;
+}
+
+.unitBlock {
+    width: 100%;
+    height: 64px;
+
+    justify-self: center;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: #577277;
+    border-radius: 0.25em;
     box-sizing: border-box;
 }
+
+.unitBlock.locked {
+    background-color: #202e37; 
+    color: #819796
+}
+
+.unitIcon {
+    width: 64px;
+    height: 64px;
+
+    image-rendering: pixelated;
+}
+
+.unitData {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    margin-left: 4px;
+}
+
+.purchaseButton {
+    height: 64px;
+    width: 64px;
+    box-sizing: border-box;
+    border-top-right-radius: 0.25em;
+    border-bottom-right-radius: 0.25em;
+}
+
+.levelButton {
+    background-color: #4f8fba;
+    color: white;
+    border: none;
+}
+
+.levelButton.active:active {
+    background-color: #253a5e;
+}
+
+.upgradeButton {
+    background-color: #4f8fba;
+    color: white;
+    border: outset 4px #a8b5b2;
+    border-radius: 0.25em;
+    justify-self: center;
+}
+
+.upgradeButton.active:active {
+    background-color: #253a5e;
+    border-style: inset;
+}
+
+.inactive {
+    background-color: #394a50;
+    color: #819796;
+}
+
+.purchased {
+    border-color: #e8c170;
+    color: #e8c170;
+    background-color: #253a5e;
+}
+

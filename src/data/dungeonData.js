@@ -1,4 +1,4 @@
-const dungeonList = [
+export const dungeonList = [
     {
         id: 0,
         name: "Testing Dungeon",
@@ -6,5 +6,3 @@ const dungeonList = [
         bosses: [0]
     }
 ]
-
-export default dungeonList;
