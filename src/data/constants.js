@@ -1,10 +1,15 @@
 const constants = {
-    baseHP: 10,
-    enemyLevelHpScaling: 1.05,
-    hpVarianceMin: 0.95,
-    hpVarianceMax: 1.05,
-    baseReward: 5,
-    upgradeCostScaling: 1.15
+    // Dungeon generation
+    roomWidth: 7,
+    roomHeight: 7,
+    roomRows: 5,
+    roomCols: 5,
+    tileSize: 16,
+    // Battle system
+    actionCost: 3,
+    // Display
+    cameraWidth: 30,
+    cameraHeight: 30
 }
 
 export default constants;

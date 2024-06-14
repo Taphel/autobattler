@@ -1,8 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import encounterReducer from './slices/encounterSlice.js'
+import cameraReducer from './slices/cameraSlice.js'
+import uiReducer from './slices/uiSlice.js';
 
 export default configureStore({
     reducer: {
-        encounter: encounterReducer
+        camera: cameraReducer,
+        ui: uiReducer
     }
 })

@@ -1,4 +1,4 @@
-const formatNumberString = (number) => {
+const formatNumberString = (number, displayTenth = true) => {
     if (Math.log10(number) >= 12) {
         if (Math.log10(number) >= 14) {
             return `${Math.floor(number/1e12).toLocaleString("en")}T`;
@@ -31,6 +31,12 @@ const formatNumberString = (number) => {
         }
     }
 
+    if (Math.log10(number) < 2 && displayTenth) {
+        return `${(number).toFixed(1).toLocaleString("en")}`;
+    } else {
+        return `${Math.floor(number).toLocaleString("en")}`;
+    }
+    
     return Math.floor(number).toLocaleString("en");
 }
 

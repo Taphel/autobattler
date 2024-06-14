@@ -1,16 +1,35 @@
+// CSS / React / Pixi
 import './App.css'
+import CameraDisplay from "./components/CameraDisplay/CameraDisplay.jsx";
+import GameUI from "./components/GameUI/GameUI.jsx"
 
-import GameManager from "./components/GameManager/GameManager.jsx";
+import { useEffect } from 'react';
 
-function App() {
+
+
+function App({ gameEngine }) {
+  const { input } = gameEngine;
+  console.log(input);
+  function handleKeyDown(event) {
+    console.log(event);
+    input.keyDown(event);
+  }
+  
+  function handleKeyUp(event) {
+    console.log(event);
+    input.keyUp(event);
+  }
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+  }, [])
+
   return (
-    <main onContextMenu={(event) => {event.preventDefault();}}>
-      <header>
-        <h1>Guildle</h1>
-      </header>
-      <GameManager />
+    <main onContextMenu={(event) => { event.preventDefault(); }}>
+      <CameraDisplay />
+      <GameUI />
     </main>
   );
 }
-
 export default App

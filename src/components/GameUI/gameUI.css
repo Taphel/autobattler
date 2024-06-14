@@ -1,0 +1,140 @@
+.gameUI {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    position: absolute;
+    bottom: 18px;
+}
+
+.targetStatus {
+    width: 512px;
+    height: 48px;
+
+    margin: 2px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: relative;
+}
+
+.target {
+    width: 48px;
+    height: 48px;
+    background-color: #262b44;
+
+    border: solid 2px black;
+    border-radius: 50%;
+
+    position: absolute;
+    left: 64px;
+    z-index: 2;
+}
+
+.targetIcon {
+    width: 32px;
+    height: 32px;
+    image-rendering: pixelated;
+    box-sizing: border-box;
+
+    margin: auto;
+}
+
+.hpBar {
+    height: 24px;
+    width: 320px;
+    background-color: brown;
+    border: solid 2px black;
+    border-radius: 0.6em;
+
+    position: absolute;
+    z-index: 1;
+
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hpText {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.buttonBar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.uiItem {
+    margin: 2px;
+    background-size: 100%;
+    image-rendering: pixelated;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: flex-center;
+    align-items: flex-center;
+}
+
+.manaText {
+    width: 24px;
+    height: 24px;
+
+    background-image: url("/sprites/ui/0digit24.png")
+}
+
+.uiButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 1.5em;
+}
+
+.turnEndButton {
+    width: 48px;
+    height: 48px;
+    background-color: #feae34;
+    border: solid 2px black;
+    border-radius: 0.6em;
+
+    margin: 0 8px;
+}
+
+.skillButton {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    background-color: #262b44;
+    border: solid 2px black;
+    border-radius: 0.6em;
+
+    margin: 0 8px;
+}
+
+.skillButton:active {
+    background-color: #3a4466;
+}
+
+.turnEndButton:active {
+    background-color: #f77622;
+}
+
+.manaCost {
+    width: 24px;
+    height: 24px;
+    right: -16px;
+    top: -12px;
+    position: absolute;
+
+    background-color: #0099db;
+    border: solid 2px black;
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

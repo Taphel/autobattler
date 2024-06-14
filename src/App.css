@@ -8,7 +8,7 @@ body, html {
   -ms-user-select: none;
   user-select: none;
 
-  background-color: gray;
+  background-image: url("/backgrounds/parallaxes/DesertNight.png");
 }
 
 #root {
@@ -16,18 +16,12 @@ body, html {
 }
 
 main {
-  width: 100vw;
   height: 100vh;
+  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-
-  background-image: url("/backgrounds/parallaxes/StarlitSky.png");
-}
-
-main header {
-  color: white;
 }
 
 p, h1, h2, h3, h4, h5, h6 {
@@ -63,4 +57,14 @@ h4 {
   font-size: 1rem;
   margin: 4px 0;
   font-weight: 600;
+}
+
+button, input[type="submit"], input[type="reset"] {
+	background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
 }
