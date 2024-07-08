@@ -1,28 +1,33 @@
 // Redux imports
 import store from "../../store/store.js";
-import { updateCameraSize, setGridTiles, setEntitySprites } from "../../store/slices/cameraSlice.js";
+import { initializeMapNodes, updateMapAlpha, updateMapCursors } from "../../store/slices/mapSlice.js";
+import { initializeBattleTiles, setEntitySprites } from "../../store/slices/battleSlice.js";
+import { setGameState } from "../../store/slices/gameStateSlice.js";
 
 /// ECS
 import System from "../System.js";
-import Entity from "../Entity.js";
+
 // Component
-import Camera from "../components/Camera.js";
 import Transform from "../components/Transform.js"
 import Animation from "../components/Animation.js";
 
-/// Other files
-// Enums
-import { TileType } from "../../data/enums.js";
-import { EntityFlag, GameState } from "../../data/enums.js";
-// Data
-import constants from "../../data/constants.js";
-
+// enum
+import { GameState, RoomType, UnitFaction } from "../../data/enums.js";
 
 
 export default class DisplaySystem extends System {
-    #playerId;
-    #cameraId;
-
+    // Constant data
+    #playerStartX;
+    #enemyStartX;
+    #boardY;
+    #sideBoardX;
+    #sideBoardY;
+    #spriteSize;
+    // Dynamic data
+    #mapCursorIds = [];
+    #mapSelectId;
+    #dragEntityId;
+    #mapAlpha = 0;
     #displayQueue = [];
     #pendingAnimations = 0;
 
@@ -34,237 +39,421 @@ export default class DisplaySystem extends System {
         return this.#pendingAnimations;
     }
 
-    initializeDisplay(dungeonLevel, entities, components) {
-        // get the player position
-        entities.forEach(entity => {
-            if (components.entityFlags.has(entity)) {
-                const isPlayer = components.entityFlags.get(entity).hasFlag(EntityFlag.item);
-                if (isPlayer) {
-                    this.#playerId = entity;
-                    const { x, y } = components.transform.get(entity).tilePosition;
-                    const cameraX = Math.max(x - Math.floor(constants.cameraWidth / 2), 0);
-                    const cameraY = Math.max(y - Math.floor(constants.cameraHeight / 2), 0);
+    initializeDisplay(dungeonLevel, entities, screenWidth, screenHeight, boardSize, sideBoardSize, xMapOffset, yMapOffset, xBattleOffset, yBattleOffset, spriteSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY) {
+        // Initialize display system constants
+        this.#spriteSize = spriteSize;
+        this.#playerStartX = playerStartX;
+        this.#enemyStartX = enemyStartX;
+        this.#boardY = boardY;
+        this.#sideBoardX = sideBoardX;
+        this.#sideBoardY = sideBoardY;
 
-                    // Create camera entity
-                    this.#cameraId = entities.length;
-                    entities.push(this.#cameraId);
-                    components.camera.add(this.#cameraId, new Camera(constants.cameraWidth, constants.cameraHeight));
-                    components.transform.add(this.#cameraId, new Transform(0, 0, 0, 0.2))
-                }
+        // Create the map store slice
+        const nodeDispatchData = [];
+        const pathDispatchData = [];
+        const { rooms } = dungeonLevel;
+        rooms.forEach(room => {
+            const { x, y } = room.position;
+            let nodeSprite;
+            switch (room.type) {
+                case RoomType.combat:
+                    nodeSprite = "combat";
+                    break;
+                case RoomType.elite:
+                    nodeSprite = "elite";
+                    break;
+                case RoomType.shop:
+                    nodeSprite = "shop";
+                    break;
+                case RoomType.altar:
+                    nodeSprite = "altar";
+                    break;
+                case RoomType.treasure:
+                    nodeSprite = y === 4 ? "treasure" : "event";
+                    break;
+                case RoomType.event:
+                    nodeSprite = "event";
+                    break;
+                case RoomType.boss:
+                    nodeSprite = "exit";
+                    break;
+            }
+
+            if (nodeSprite) {
+                nodeDispatchData.push(
+                    {
+                        id: `MAPNODE_(${x};${y})`,
+                        gridPosition: room.position,
+                        sprite: `/sprites/tilesets/${spriteSize}/map/${nodeSprite}.png`,
+                        alpha: 0,
+                        x: y * spriteSize,
+                        y: x * spriteSize
+                    }
+                )
+            }
+
+
+            if (room.children) {
+                room.children.forEach(child => {
+                    if (child.position.x < x) {
+                        pathDispatchData.push({
+                            id: `MAPPATH_(${x};${y};${child.position.x};${child.position.y})`,
+                            sprite: `/sprites/tilesets/${spriteSize}/map/pathtop.png`,
+                            alpha: 0,
+                            x: y * spriteSize + spriteSize / 2,
+                            y: x * spriteSize - spriteSize / 2
+                        })
+                    }
+
+                    if (child.position.x > x) {
+                        pathDispatchData.push({
+                            id: `MAPPATH_(${x};${y};${child.position.x};${child.position.y})`,
+                            sprite: `/sprites/tilesets/${spriteSize}/map/pathbottom.png`,
+                            alpha: 0,
+                            x: y * spriteSize + spriteSize / 2,
+                            y: x * spriteSize + spriteSize / 2
+                        })
+                    }
+
+                    if (child.position.x === x) {
+                        pathDispatchData.push({
+                            id: `MAPPATH_(${x};${y};${child.position.x};${child.position.y})`,
+                            sprite: `/sprites/tilesets/${spriteSize}/map/pathright.png`,
+                            alpha: 0,
+                            x: y * spriteSize + spriteSize / 2,
+                            y: x * spriteSize
+                        })
+                    }
+                })
             }
         })
 
-        // Initialise sprites for each tile;
-        const { grid, width, height } = dungeonLevel;
-        const tilesDispatchData = [];
+        store.dispatch(initializeMapNodes({
+            nodes: nodeDispatchData,
+            paths: pathDispatchData,
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
+            xOffset: xMapOffset,
+            yOffset: yMapOffset,
+            spriteSize: spriteSize
+        }));
 
-        grid.forEach(tile => {
-            switch (tile.type) {
-                case TileType.floor:
-                    tile.setSprite("111111111");
-                    break;
-                case TileType.wall:
-                    const bitmaskArray = []
-                    for (let y = tile.position.y - 1; y <= tile.position.y + 1; y++) {
-                        for (let x = tile.position.x - 1; x <= tile.position.x + 1; x++) {
-                            const tile = dungeonLevel.findTile(x, y);
-                            if (tile && tile?.type === TileType.floor) {
-                                bitmaskArray.push(1);
-                            } else {
-                                bitmaskArray.push(0);
+        // Create the map store slice
+        const tileDispatchData = [];
+        for (let i = 0; i < screenWidth * 7; i++) {
+            const x = i % screenWidth;
+            const y = Math.floor(i / screenWidth);
+            let tileSprite;
+            if (y === 1) {
+                tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/wall.png`;
+            }
+
+            if (y === 2) {
+                tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/ground.png`;
+            }
+
+            if (y === 3) {
+                tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/border.png`;
+            }
+
+            if (y === 4) {
+                if (x === 3) {
+                    tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/sidecornerleft.png`;
+                }
+
+                if (x > 3) {
+                    if (x < 12) {
+                        tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/sideground.png`;
+                    } else if (x === 12) {
+                        tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/sidecornerright.png`;
+                    }
+                }
+            }
+
+            if (y === 5) {
+                if (x === 3) {
+                    tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/sidecornerborderleft.png`;
+                }
+
+                if (x > 3) {
+                    if (x < 12) {
+                        tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/sideborder.png`;
+                    } else if (x === 12) {
+                        tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/sidecornerborderright.png`;
+                    }
+                }
+            }
+
+            tileDispatchData.push({
+                id: `TILE(${x};${y})`,
+                sprite: tileSprite,
+                alpha: 1,
+                x: x * spriteSize,
+                y: y * spriteSize
+            })
+        }
+
+        store.dispatch(initializeBattleTiles({
+            tiles: tileDispatchData,
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
+            xOffset: xBattleOffset,
+            yOffset: yBattleOffset,
+            spriteSize: spriteSize
+        }));
+
+        // Allocate memory for map cursors and map select
+        for (let i = 0; i < screenHeight; i++) {
+            const mapCursorId = entities.length;
+            this.#mapCursorIds.push(mapCursorId);
+            entities.push(mapCursorId);
+        }
+
+        const selectCursorId = entities.length;
+        this.#mapSelectId = selectCursorId;
+        entities.push(selectCursorId);
+
+        // Allocate memory for drag and drop entity
+        const dragEntityId = entities.length;
+        this.#dragEntityId = dragEntityId;
+        entities.push(dragEntityId);
+    }
+
+    update(gameState, dungeonLevel, entities, components, unitPool, pointerInput, deltaTime) {
+        const { transform, animation, unit } = components;
+        const cursorDispatchData = [];
+        let newState = gameState;
+        switch (gameState) {
+            case GameState.mapStart:
+                if (this.#mapAlpha < 1) {
+                    this.#mapAlpha += 0.05;
+                } else {
+                    newState = GameState.map;
+                }
+
+                store.dispatch(updateMapAlpha(this.#mapAlpha));
+                store.dispatch(setGameState(newState));
+                return newState;
+            case GameState.map:
+                let displayedCursors = 0;
+                this.#mapCursorIds.forEach(id => {
+                    if (transform.has(id) && animation.has(id)) displayedCursors++;
+                })
+
+                if (!displayedCursors) {
+                    // Create unit cursor components
+                    const highlightedNodes = dungeonLevel.currentRoom ? dungeonLevel.currentRoom.children : dungeonLevel.rooms.filter(room => room.position.y === 0 && room.children.length);
+
+                    for (let i = 0; i < highlightedNodes.length; i++) {
+                        const cursorId = this.#mapCursorIds[i];
+                        const { x, y } = highlightedNodes[i].position;
+                        const cursorTransform = new Transform(y, x, 3, 0, this.#spriteSize);
+                        const cursorAnimation = new Animation(`tilesets/${this.#spriteSize}/map/cursor`, 10, 60);
+                        transform.add(cursorId, cursorTransform);
+                        animation.add(cursorId, cursorAnimation)
+                    }
+                } else {
+                    this.#mapCursorIds.forEach(id => {
+                        // update cursor animation
+                        const cursorAnimation = animation.has(id) ? animation.get(id) : null;
+                        if (cursorAnimation) cursorAnimation.update(deltaTime);
+                    })
+                }
+
+                this.#mapCursorIds.forEach(id => {
+                    const cursorTransform = transform.has(id) ? transform.get(id) : null;
+                    const cursorAnimation = animation.has(id) ? animation.get(id) : null;
+
+                    if (cursorTransform && cursorAnimation) {
+                        const { position } = cursorTransform;
+                        const { sprites, currentFrame } = cursorAnimation;
+                        cursorDispatchData.push({
+                            id: id,
+                            x: position.x,
+                            y: position.y,
+                            z: position.z,
+                            sprite: `${sprites[currentFrame]}`,
+                            alpha: 1,
+                        })
+                    }
+                })
+
+                store.dispatch(updateMapCursors(cursorDispatchData));
+                return GameState.map;
+            case GameState.roomStart:
+                let selectTransform, selectAnimation;
+                if (transform.has(this.#mapSelectId) && animation.has(this.#mapSelectId)) {
+                    selectTransform = transform.get(this.#mapSelectId);
+                    selectAnimation = animation.get(this.#mapSelectId);
+                    const animationUpdate = selectAnimation.update(deltaTime);
+                    if (animationUpdate.lastFrame) {
+                        this.#mapAlpha -= 0.05;
+                        store.dispatch(updateMapAlpha(this.#mapAlpha));
+                    }
+                } else {
+                    // Clear out map cursors
+                    this.#clearMapCursors(components);
+                    const { x, y } = dungeonLevel.currentRoom.position;
+                    selectTransform = new Transform(y, x, 3, 0, this.#spriteSize);
+                    transform.add(this.#mapSelectId, selectTransform);
+                    selectAnimation = new Animation(`tilesets/${this.#spriteSize}/map/selected`, 10, 45, true);
+                    animation.add(this.#mapSelectId, selectAnimation);
+                }
+
+                // if fade is finished, switch gameState and clear out components
+                if (this.#mapAlpha <= 0) {
+                    this.#clearMapSelect(components);
+                    newState = GameState.idle;
+                } else {
+                    const { x, y, z } = selectTransform.position;
+                    const { sprites, currentFrame } = selectAnimation;
+                    cursorDispatchData.push({
+                        id: this.#mapSelectId,
+                        x: x,
+                        y: y,
+                        z: z,
+                        sprite: `${sprites[currentFrame]}`,
+                        alpha: this.#mapAlpha,
+                    })
+                }
+
+                store.dispatch(updateMapCursors(cursorDispatchData));
+                store.dispatch(setGameState(newState));
+                return newState;
+            case GameState.idle:
+                const entityDispatchData = [];
+                // Read pointer input
+                const { over, down, position } = pointerInput;
+                const clickedUnit = down && 'id' in down && unitPool.playerUnits.includes(down?.id);
+                entities.forEach(entity => {
+                    let entityTransform, entityAnimation, entityPosition, entitySpeed = 0.5, scale = { x: 1, y: 1 }, interactable = false;
+                    // Determine unit X and Y based on faction and index in unit arrays;
+                    const playerUnit = unitPool.playerUnits.includes(entity);
+                    const enemyUnit = unitPool.enemyUnits.includes(entity);
+                    const dragEntity = entity === this.#dragEntityId;
+                    if (playerUnit || enemyUnit) {
+                        interactable = true;
+                        if (playerUnit) {
+                            scale = { x: -1, y: 1 }
+                            const unitIndex = entity - unitPool.playerUnits[0];
+                            entityPosition = {
+                                x: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
+                                    this.#playerStartX - unitIndex :
+                                    this.#sideBoardX + (unitIndex - unitPool.boardSize),
+                                y: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
+                                    this.#boardY : this.#sideBoardY,
+                                z: 3
+                            }
+                        }
+
+                        if (enemyUnit) {
+                            const unitIndex = entity - unitPool.enemyUnits[0];
+                            entityPosition = {
+                                x: unitIndex + this.#enemyStartX,
+                                y: this.#boardY,
+                                z: 3
                             }
                         }
                     }
 
-                    let bitmaskString = "";
-                    bitmaskArray.forEach(bit => {
-                        bitmaskString += bit.toString();
-                    });
-                    tile.setSprite(bitmaskString);
-                    break;
-            }
+                    if (dragEntity) {
+                        scale = { x: -1, y: 1 };
+                        if (clickedUnit) {
+                            // Set drag entity position based on mouse cursor
+                            if (position && 'x' in position && 'y' in position) {
+                                entityPosition = {
+                                    x: position.x / this.#spriteSize,
+                                    y: position.y / this.#spriteSize,
+                                    z: 4
+                                }
+                                entitySpeed = 0;
+                            }
 
-            tilesDispatchData.push({
-                id: tile.id,
-                sprite: `/sprites/tilesets/${dungeonLevel.tileset}/${tile.sprite}.png`,
-                display: "visible",
-                position: { x: tile.position.x, y: tile.position.y }
-            })
-        })
-
-        // Initialize entity display store
-        const entitiesDispatchData = []
-        entities.forEach(entity => {
-            const { animation, transform } = components;
-            if (animation.has(entity) && transform.has(entity)) {
-                const { sprites, currentFrame } = animation.get(entity);
-                const { x, y, z } = transform.get(entity).position;
-
-                entitiesDispatchData.push({
-                    id: entity,
-                    sprites: sprites,
-                    currentFrame: currentFrame,
-                    x: x,
-                    y: y,
-                    z: z,
-                })
-            }
-        })
-
-        store.dispatch(updateCameraSize({ width: constants.cameraWidth, height: constants.cameraHeight }));
-    }
-
-    update(dungeonLevel, entities, components, deltaTime, newDisplayQueue) {
-        // Initialize variables
-        this.#pendingAnimations = 0;
-        const tileUpdateData = [];
-        const entityUpdateData = [];
-        const { animation, camera, transform, entityFlags, vision } = components;
-        let playerFov = vision.has(this.#playerId) ? vision.get(this.#playerId).fieldOfView : null;
-
-        // update and manage display queue
-        if (newDisplayQueue) newDisplayQueue.forEach(element => this.#displayQueue.push(element))
-
-        const updatedDisplayQueue = [];
-
-        this.#displayQueue.forEach(element => {
-            if (element.animation) {
-                const { position, sprite, frames } = element.animation;
-                const animationId = entities.length;
-                entities.push(animationId);
-                transform.add(animationId, new Transform(position.x, position.y, 3, 0));
-                animation.add(animationId, new Animation(sprite, frames, true));
-            }
-
-            if (element.transform) {
-                const { id, position } = element.transform;
-                if (transform.get(id).target) {
-                    updatedDisplayQueue.push(element);
-                } else {
-                    transform.get(id).setTarget(position);
-                }
-            }
-
-            if (element.death) {
-                console.log("DEATH", element.death);
-                const { id } = element.death;
-                // Check for pending movement
-                if (transform.get(id)?.target) {
-                    updatedDisplayQueue.push(element);
-                } else {
-                    // TBD - death fade
-                    console.log(id);
-                    console.log(id, "DYING")
-                    transform.remove(id);
-                    animation.remove(id);
-                }
-            }  
-        })
-
-        // Update display queue
-        this.#displayQueue = updatedDisplayQueue;
-
-        entities.forEach(entity => {
-            if (transform.has(entity)) {
-                // Update camera target position
-                // if (camera.has(entity)) {
-                //     if (transform.has(this.#playerId)) {
-                //         const { width, height } = camera.get(entity);
-                //         const { x, y } = transform.get(this.#playerId).tilePosition;
-
-                //         const cameraX = Math.min(Math.max(x - Math.floor(width / 2), 0), dungeonLevel.width - width);
-                //         const cameraY = Math.min(Math.max(y - Math.floor(height / 2), 0), dungeonLevel.height - height);
-
-                //         transform.get(entity).setTarget({ x: cameraX, y: cameraY });
-                //     }
-                // }
-
-                // Update world position
-                const transformUpdate = transform.get(entity).update(deltaTime);
-                const { x, y, z } = transformUpdate.position
-                if (transformUpdate.target) this.#pendingAnimations++;
-
-                // Update sprite frame 
-                if (animation.has(entity)) {
-                    let clearDisplayComponents = false;
-                    const animationUpdate = animation.get(entity).update(deltaTime);
-                    if (animationUpdate.playOnce) {
-                        if (animationUpdate.lastFrame) {
-                            clearDisplayComponents = true;
+                            entityAnimation = animation.has(entity) ? animation.get(entity) : null;
+                            if (entityAnimation) {
+                                entityAnimation.update(deltaTime);
+                            } else {
+                                entityAnimation = animation.has(down.id) ? animation.get(down.id) : null;
+                                if (entityAnimation) {
+                                    animation.add(entity, entityAnimation);
+                                }
+                            }
                         } else {
-                            this.#pendingAnimations++;
+                            transform.remove(entity);
+                            animation.remove(entity);
                         }
                     }
 
-                    if (!clearDisplayComponents) {
-                        // Look for camera and create store data
-                        const cameraPosition = transform.has(this.#cameraId) ? transform.get(this.#cameraId).position : null;
-                        
-                        if (cameraPosition) {
-                            const entityDisplayX = x - cameraPosition.x;
-                            const entityDisplayY = y - cameraPosition.y;
-                            const { currentFrame, sprites } = animation.get(entity);
+                    // Update or create the transform component based on the new position;
+                    if (transform.has(entity)) {
+                        entityTransform = transform.get(entity);
+                        entityTransform.setTarget(entityPosition.x, entityPosition.y);
+                        entityTransform.update(this.#spriteSize, deltaTime);
+                    } else if (entityPosition) {
+                        entityTransform = new Transform(entityPosition.x, entityPosition.y, entityPosition.z, entitySpeed, this.#spriteSize);
+                        transform.add(entity, entityTransform);
+                    }
 
-                            let display = true; // Test
-                            let entityInFov;
-
-                            // if (playerFov) {
-                            //     const { tilePosition } = transform.get(entity);
-                            //     entityInFov = playerFov.find(coordinates => {
-                            //         return coordinates.x === tilePosition.x && coordinates.y === tilePosition.y
-                            //     })
-
-                            //     display = entityInFov ? true : false;
-                            // }
-
-                            entityUpdateData.push(
-                                {
-                                    id: entity,
-                                    sprites: sprites,
-                                    currentFrame: currentFrame,
-                                    x: entityDisplayX,
-                                    y: entityDisplayY,
-                                    z: z,
-                                    display: true
-                                })
+                    // Update or create animation component if a unit is on this spot
+                    if (unit.has(entity)) {
+                        entityAnimation = animation.has(entity) ? animation.get(entity) : null;
+                        if (entityAnimation) {
+                            entityAnimation.update(deltaTime);
+                        } else {
+                            const unitData = unit.get(entity);
+                            const { path, frames, speed } = unitData.sprite;
+                            entityAnimation = new Animation(`units/${this.#spriteSize}/${path}`, frames, speed);
+                            animation.add(entity, entityAnimation);
                         }
                     } else {
-                        animation.remove(entity);
-                        transform.remove(entity);
+                        if (entityAnimation) {
+                            animation.remove(entity);
+                        }
                     }
-                }
-            }
-        })
 
-        dungeonLevel.grid.forEach(tile => {
-            // Look for camera and create store data
-            const cameraPosition = transform.has(this.#cameraId) ? transform.get(this.#cameraId).position : null;
+                    // Create dispatch data for this entity
+                    if (entityTransform) {
+                        const { x, y, z } = entityTransform.position;
+                        let entitySprite;
+                        if (entityAnimation) {
+                            const { sprites, currentFrame } = entityAnimation;
+                            entitySprite = sprites[currentFrame];
+                        } else entitySprite = `/sprites/units/${this.#spriteSize}/empty.png`;
 
-            const tileDisplayX = tile.position.x * 16;
-                const tileDisplayY = tile.position.y * 16;
-                let display = "visible";
-
-                // const { isExplored } = tile;
-                // if (isExplored) {
-                //     let tileInFov;
-                //     if (playerFov) {
-                //         tileInFov = playerFov.find(coordinates => coordinates.x === tile.position.x && coordinates.y === tile.position.y);
-                //     }
-                //     display = tileInFov ? "visible" : "fog";
-                // } else {
-                //     display = "hidden";
-                // }
-                tileUpdateData.push({
-                    id: tile.id,
-                    position: tile.position,
-                    x: tileDisplayX,
-                    y: tileDisplayY,
-                    display: display,
-                    sprite: `/sprites/tilesets/${dungeonLevel.tileset}/${tile.sprite}.png`
+                        entityDispatchData.push({
+                            id: entity,
+                            x: x,
+                            y: y,
+                            z: z,
+                            sprite: entitySprite,
+                            alpha: clickedUnit && entity === down?.id ? 0.5 : 1,
+                            scale: scale,
+                            anchor: dragEntity ? 0.5 : 0,
+                            interactable: interactable
+                        })
+                    }
                 })
-        })
 
-        store.dispatch(setGridTiles(tileUpdateData));
-        store.dispatch(setEntitySprites(entityUpdateData));
+                store.dispatch(setEntitySprites(entityDispatchData));
+                return GameState.idle;
+        }
+    }
+
+    #clearMapCursors(components) {
+        if (!this.#mapCursorIds.length) return;
+        const { transform, animation } = components;
+        // Clear cursor display components
+        this.#mapCursorIds.forEach(id => {
+            transform.remove(id);
+            animation.remove(id);
+        })
+    }
+
+    #clearMapSelect(components) {
+        if (!this.#mapSelectId) return;
+        const { transform, animation } = components;
+        // Clear cursor display components
+        transform.remove(this.#mapSelectId);
+        animation.remove(this.#mapSelectId);
     }
 }

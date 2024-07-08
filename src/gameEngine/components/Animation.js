@@ -4,11 +4,13 @@ import Component from "../Component.js";
 export default class Animation extends Component {
     #sprites=[];
     #currentFrame = 0;
+    #frameTime;
     #frameDuration = 0;
 
+    #freeze = false;
     #playOnce;
     
-    constructor(sprite, frames, playOnce = false) {
+    constructor(sprite, frames, frameTime = 30, playOnce = false) {
         super();
         if (frames === 1) {
             this.sprites.push(`/sprites/${sprite}.png`)
@@ -18,7 +20,7 @@ export default class Animation extends Component {
             }
         }
         
-
+        this.#frameTime = frameTime;
         this.#playOnce = playOnce;
     }
 
@@ -30,11 +32,17 @@ export default class Animation extends Component {
         return this.#currentFrame;
     }
 
+    resetFrame() {
+        this.#currentFrame = 0;
+    }
+
     update(deltaTime) {
         this.#frameDuration += deltaTime;
-        if (this.#frameDuration >= 60) {
-            this.#currentFrame = (this.#currentFrame  + 1) % this.#sprites.length;
-            this.#frameDuration -= 60;
+        if (this.#frameDuration >= this.#frameTime) {
+            if (this.#currentFrame < this.#sprites.length - 1 || !this.#playOnce) {
+                this.#currentFrame = (this.#currentFrame  + 1) % this.#sprites.length;
+                this.#frameDuration -= this.#frameTime;
+            }
         }
 
         return {

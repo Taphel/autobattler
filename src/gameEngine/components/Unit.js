@@ -2,55 +2,62 @@
 import Component from "../Component.js";
 
 // data import
-import constants from "../../data/constants.js";
+import { AbilityTarget, AbilityCost, AbilityEffect } from "../../data/enums.js";
+
+class Ability {
+    #cost;
+    #target;
+    #hits;
+    #effect;
+    #casts = { current: 0, battle: 0 }
+
+    constructor(ability) {
+        const { cost, target, hits, effect } = ability;
+        this.#cost = { type: cost.type, base: cost.max, max: cost.max, current: 0 };
+        this.#target = target;
+        this.#hits = hits;
+        this.#effect = effect;
+    }
+
+    perform() {
+
+    }
+}
 
 export default class Unit extends Component {
-    #tier
-    #hp
-    #damage
-    #magic
-    #speed
-
-    #actionValue = 0;
-    #isElite;
-
+    #id;
+    #name;
+    #sprite;
+    #tier;
     #attack;
-    #skill;
+    #hp;
+    #effects;
+    #ability;
+    #level = 1;
 
-    constructor(speed, hp) {
+    constructor(unitData, level) {
         super();
-        this.#speed = speed;
-        this.#hp = { current: hp, max: hp };
-    }
-
-    get hp() {
-        return this.#hp;
-    }
-
-    get actionValue() {
-        return this.#actionValue;
-    }
-
-    gainActionValue() {
-        this.#actionValue += this.#speed;
-    }
-
-    act() {
-        this.#actionValue -= constants.actionCost;
+        const { id, name, sprite, tier, attack, hp, effects, ability } = unitData;
+        this.#id = id;
+        this.#name = name;
+        this.#sprite = sprite;
+        this.#tier = tier,
+        this.#attack = { base: attack, current: attack, battle: attack };
+        this.#hp = { base: hp, current: 0, battle: 0, damage: 0 };
+        this.#effects = { base: effects, current: [], battle: [] };
+        this.#ability = new Ability(ability);
+        this.#level = level;
     }
 
     update(actionResult) {
-        if (actionResult.damage) {
-            if (actionResult.damage >= this.#hp.current) {
-                this.#hp.current = 0;
-                this.#actionValue = 0;
-                console.log(this.#hp.current);
-                return true;
-            } else {
-                this.#hp.current -= actionResult.damage;
-                console.log(this.#hp.current);
-                return false
-            }
-        }
+        
+    }
+
+    get tier() {
+        return this.#tier;
+    }
+
+    get sprite() {
+        return this.#sprite;
     }
 }

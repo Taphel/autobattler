@@ -2,26 +2,18 @@
 import Component from "../Component.js";
 
 export default class Transform extends Component {
-    #tileX;
-    #tileY;
     #target = null;
     #x;
     #y;
     #z;
     #speed;
 
-    constructor(x, y, z, speed) {
+    constructor(x = 0, y = 0, z = 0, speed = 0, spriteSize = 64) {
         super();
-        this.#tileX = x;
-        this.#x = x * 32;
-        this.#tileY = y;
-        this.#y = y * 32;
+        this.#x = x * spriteSize;
+        this.#y = y * spriteSize;
         this.#z = z;
         this.#speed = speed;
-    }
-
-    get tilePosition() {
-        return { x: this.#tileX, y: this.#tileY };
     }
 
     get position() {
@@ -32,44 +24,45 @@ export default class Transform extends Component {
         return this.#target;
     }
 
-    setTarget(targetPosition) {
-        this.#target = targetPosition;
+    setTarget(x, y) {
+        this.#target = {x: x, y: y};
     }
-
-    move(x, y) {
-        this.#tileX = x;
-        this.#tileY = y;
-    }
-
-    update(deltaTime) {
+    
+    update(spriteSize, deltaTime) {
         // Update canvas position
         if (this.#target) {
-            const targetX = this.#target?.x * 32;
-            const targetY = this.#target?.y * 32;
-            if (this.#x !== targetX) {
-                const direction = Math.sign(targetX - this.#x);
-                switch (direction) {
-                    case 1:
-                        this.#x = this.#x + Math.min(this.#speed * deltaTime * direction, targetX - this.#x);
-                        break;
-                    case -1:
-                        this.#x = this.#x + Math.max(this.#speed * deltaTime * direction, targetX - this.#x);
-                        break;
-                }
-            }
+            const targetX = this.#target?.x * spriteSize;
+            const targetY = this.#target?.y * spriteSize;
 
-            if (this.#y !== targetY) {
-                const direction = Math.sign(targetY - this.#y);
-                switch (direction) {
-                    case 1:
-                        this.#y = this.#y + Math.min(this.#speed * deltaTime * direction, targetY - this.#y);
-                        break;
-                    case -1:
-                        this.#y = this.#y + Math.max(this.#speed * deltaTime * direction, targetY - this.#y);
-                        break;
+            if (this.#speed === 0) {
+                this.#x = targetX;
+                this.#y = targetY;
+            } else {
+                if (this.#x !== targetX) {
+                    const direction = Math.sign(targetX - this.#x);
+                    switch (direction) {
+                        case 1:
+                            this.#x = this.#x + Math.min(this.#speed * deltaTime * direction, targetX - this.#x);
+                            break;
+                        case -1:
+                            this.#x = this.#x + Math.max(this.#speed * deltaTime * direction, targetX - this.#x);
+                            break;
+                    }
                 }
+    
+                if (this.#y !== targetY) {
+                    const direction = Math.sign(targetY - this.#y);
+                    switch (direction) {
+                        case 1:
+                            this.#y = this.#y + Math.min(this.#speed * deltaTime * direction, targetY - this.#y);
+                            break;
+                        case -1:
+                            this.#y = this.#y + Math.max(this.#speed * deltaTime * direction, targetY - this.#y);
+                            break;
+                    }
+                }
+                if (this.#x === targetX && this.#y === targetY) this.#target = null;
             }
-            if (this.#x === targetX && this.#y === targetY) this.#target = null;
         }
         
         return ({

@@ -1,0 +1,5 @@
+canvas {
+    border: solid 4px black;
+    box-sizing: border-box;
+    border-radius: 0.25em;
+}

@@ -1,6 +1,9 @@
 // Class imports
 import System from "../System.js";
 
+// data imports
+import { UnitFaction } from "../../data/enums.js";
+
 export default class InputSystem extends System { 
     #up = 0;
     #down = 0;
@@ -8,12 +11,23 @@ export default class InputSystem extends System {
     #left = 0;
     #space = 0;
     #shift = 0;
-
-    #mouseTarget = null;
+    #pointerOverTarget = null;
+    #pointerDownTarget = null;
+    #pointerPosition;
+    pointerOut;
+    pointerUp;
     #storedInputs = [];
     
     constructor () {
         super();
+        this.pointerOut = () => {
+            this.#pointerOverTarget = null;
+            console.log("POINTEROUT:", this.#pointerOverTarget)
+        }
+        this.pointerUp = () => {
+            this.#pointerDownTarget = null;
+            console.log("POINTERUP", this.#pointerDownTarget);
+        }
     }
 
     get direction() {
@@ -27,18 +41,21 @@ export default class InputSystem extends System {
         }
     }
 
-    get mouseTarget() {
-        return this.#mouseTarget;
+    pointerOver(target) {
+        console.log(target);
+        this.#pointerOverTarget = target;
+        console.log("POINTEROVER:", this.#pointerOverTarget)
     }
 
-    clearTarget() {
-        this.#mouseTarget = null;
+    pointerDown(target) {
+        console.log(target);
+        this.#pointerDownTarget = target;
+        console.log("POINTERDOWN:", this.#pointerDownTarget)
+        
     }
 
-    handleTileClick(target) {
-        console.log("new target:", target);
-        const { x, y } = target;
-        this.#mouseTarget = {x: x,  y: y};
+    pointerMove(target) {
+        this.#pointerPosition = target;
     }
 
     keyDown(event) {
@@ -99,28 +116,10 @@ export default class InputSystem extends System {
 
     update() {
         // Construct the input object for this frame
-        const skip = this.#space;
-        const forceMove = this.#shift;
-        let direction = null;
-
-        const vectorX = this.#right - this.#left;
-        const vectorY = this.#down - this.#up;
-
-        if ((Math.abs(vectorX) && !Math.abs(vectorY)) || (!Math.abs(vectorX) && Math.abs(vectorY))) {
-            direction = { x: vectorX, y: vectorY }
+        return {
+            over: this.#pointerOverTarget,
+            down: this.#pointerDownTarget,
+            position: this.#pointerPosition
         }
-
-        this.#storedInputs.unshift({
-            skip: skip,
-            forceMove: forceMove,
-            direction: direction
-        });
-
-        // Clearup array (only keep the last 6 frames)
-        while (this.#storedInputs.length > 6) {
-            this.#storedInputs.pop();
-        }
-
-        return this.#storedInputs;
     }
 }
