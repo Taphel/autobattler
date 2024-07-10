@@ -18,13 +18,14 @@ function App({ gameEngine }) {
     input.pointerUp(event);
   }
   
-  function handleKeyUp(event) {
-    console.log(event);
-    input.keyUp(event);
+  function handleResize(event) {
+    console.log(event.currentTarget.innerWidth, event.currentTarget.innerHeight);
   }
 
   useEffect(() => {
     document.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('load', handleResize);
+    window.addEventListener('resize', handleResize);
   }, [])
 
   return (
