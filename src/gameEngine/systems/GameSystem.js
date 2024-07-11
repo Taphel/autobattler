@@ -8,8 +8,6 @@ import { GameState, UnitFaction, AbilityCost, AbilityTarget, AbilityEffect } fro
 import Unit from "../components/Unit.js";
 
 export default class GameSystem extends System {
-    #playerEntities = [];
-    #enemyEntities = [];
 
     constructor() {
         super();
