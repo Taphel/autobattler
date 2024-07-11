@@ -31,11 +31,14 @@ export const mapSlice = createSlice({
         },
         updateMapCursors: (state, action) => {
             state.cursors = action.payload;
+        },
+        updateNodeSize: (state, action) => {
+            state.spriteSize = action.payload;
         }
     }
 })
 
 
 // // Action creators are generated for each case reducer function
-export const { initializeMapNodes, updateMapAlpha, updateMapCursors } = mapSlice.actions
+export const { initializeMapNodes, updateMapAlpha, updateMapCursors, updateNodeSize } = mapSlice.actions
 export default mapSlice.reducer

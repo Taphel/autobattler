@@ -55,6 +55,10 @@ class GameEngine {
         return this.#systems.input;
     }
 
+    get display() {
+        return this.#systems.display;
+    }
+
     #clearEntities() {
         const { animation, transform, unit } = this.#components;
         this.#entities.forEach(entity => {

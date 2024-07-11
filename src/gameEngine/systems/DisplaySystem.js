@@ -1,7 +1,7 @@
 // Redux imports
 import store from "../../store/store.js";
-import { initializeMapNodes, updateMapAlpha, updateMapCursors } from "../../store/slices/mapSlice.js";
-import { initializeBattleTiles, setEntitySprites } from "../../store/slices/battleSlice.js";
+import { initializeMapNodes, updateMapAlpha, updateMapCursors, updateNodeSize } from "../../store/slices/mapSlice.js";
+import { initializeBattleTiles, setEntitySprites, updateTileSize } from "../../store/slices/battleSlice.js";
 import { setGameState } from "../../store/slices/gameStateSlice.js";
 
 /// ECS
@@ -16,13 +16,16 @@ import { GameState, RoomType, UnitFaction } from "../../data/enums.js";
 
 
 export default class DisplaySystem extends System {
+    // Display data
+    #screenWidth;
+    #screenHeight;
+    #spriteSize;
     // Constant data
     #playerStartX;
     #enemyStartX;
     #boardY;
     #sideBoardX;
     #sideBoardY;
-    #spriteSize;
     // Dynamic data
     #mapCursorIds = [];
     #mapSelectId;
@@ -41,6 +44,8 @@ export default class DisplaySystem extends System {
 
     initializeDisplay(dungeonLevel, entities, screenWidth, screenHeight, xMapOffset, yMapOffset, spriteSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY) {
         // Initialize display system constants
+        this.#screenWidth = screenWidth;
+        this.#screenHeight = screenHeight;
         this.#spriteSize = spriteSize;
         this.#playerStartX = playerStartX;
         this.#enemyStartX = enemyStartX;
@@ -86,8 +91,8 @@ export default class DisplaySystem extends System {
                         gridPosition: room.position,
                         sprite: `${nodeSprite}`,
                         alpha: 0,
-                        x: y * spriteSize,
-                        y: x * spriteSize
+                        x: y,
+                        y: x
                     }
                 )
             }
@@ -100,8 +105,8 @@ export default class DisplaySystem extends System {
                             id: `MAPPATH_(${x};${y};${child.position.x};${child.position.y})`,
                             sprite: `pathtop`,
                             alpha: 0,
-                            x: y * spriteSize + spriteSize / 2,
-                            y: x * spriteSize - spriteSize / 2
+                            x: y + 0.5,
+                            y: x - 0.5
                         })
                     }
 
@@ -110,8 +115,8 @@ export default class DisplaySystem extends System {
                             id: `MAPPATH_(${x};${y};${child.position.x};${child.position.y})`,
                             sprite: `pathbottom`,
                             alpha: 0,
-                            x: y * spriteSize + spriteSize / 2,
-                            y: x * spriteSize + spriteSize / 2
+                            x: y + 0.5,
+                            y: x + 0.5
                         })
                     }
 
@@ -120,8 +125,8 @@ export default class DisplaySystem extends System {
                             id: `MAPPATH_(${x};${y};${child.position.x};${child.position.y})`,
                             sprite: `pathright`,
                             alpha: 0,
-                            x: y * spriteSize + spriteSize / 2,
-                            y: x * spriteSize
+                            x: y + 0.5,
+                            y: x
                         })
                     }
                 })
@@ -188,8 +193,8 @@ export default class DisplaySystem extends System {
                 id: `TILE(${x};${y})`,
                 sprite: tileSprite,
                 alpha: 1,
-                x: x * spriteSize,
-                y: y * spriteSize
+                x: x,
+                y: y
             })
         }
 
@@ -215,6 +220,25 @@ export default class DisplaySystem extends System {
         const dragEntityId = entities.length;
         this.#dragEntityId = dragEntityId;
         entities.push(dragEntityId);
+    }
+
+    resize(width, height) {
+        console.log(width, height);
+        let spriteSize = 32;
+        let maxWidth = width / spriteSize;
+        let maxHeight = height / spriteSize;
+
+        if (maxWidth >= this.#screenWidth && maxHeight >= this.#screenHeight) {
+            while (maxWidth >= this.#screenWidth && maxHeight >= this.#screenHeight) {
+                spriteSize *= 2;
+                maxWidth = width / spriteSize;
+                maxHeight = height / spriteSize;
+            }
+            spriteSize /= 2;
+        }
+        this.#spriteSize = spriteSize;
+        store.dispatch(updateNodeSize(spriteSize));
+        store.dispatch(updateTileSize(spriteSize));
     }
 
     update(gameState, dungeonLevel, entities, components, unitPool, pointerInput, deltaTime) {
@@ -245,7 +269,7 @@ export default class DisplaySystem extends System {
                     for (let i = 0; i < highlightedNodes.length; i++) {
                         const cursorId = this.#mapCursorIds[i];
                         const { x, y } = highlightedNodes[i].position;
-                        const cursorTransform = new Transform(y, x, 3, 0, this.#spriteSize);
+                        const cursorTransform = new Transform(y, x, 3, 0);
                         const cursorAnimation = new Animation(`cursor`, 10, 60);
                         transform.add(cursorId, cursorTransform);
                         animation.add(cursorId, cursorAnimation)
@@ -292,7 +316,7 @@ export default class DisplaySystem extends System {
                     // Clear out map cursors
                     this.#clearMapCursors(components);
                     const { x, y } = dungeonLevel.currentRoom.position;
-                    selectTransform = new Transform(y, x, 3, 0, this.#spriteSize);
+                    selectTransform = new Transform(y, x, 3, 0);
                     transform.add(this.#mapSelectId, selectTransform);
                     selectAnimation = new Animation(`selected`, 10, 45, true);
                     animation.add(this.#mapSelectId, selectAnimation);
@@ -324,7 +348,7 @@ export default class DisplaySystem extends System {
                 const { over, down, position } = pointerInput;
                 const clickedUnit = down && 'id' in down && unitPool.playerUnits.includes(down?.id);
                 entities.forEach(entity => {
-                    let entityTransform, entityAnimation, entityPosition, entitySpeed = 0.5, scale = { x: 1, y: 1 }, interactable = false;
+                    let entityTransform, entityAnimation, entityPosition, entitySpeed = 0.01, scale = { x: 1, y: 1 }, interactable = false;
                     // Determine unit X and Y based on faction and index in unit arrays;
                     const playerUnit = unitPool.playerUnits.includes(entity);
                     const enemyUnit = unitPool.enemyUnits.includes(entity);
@@ -359,6 +383,7 @@ export default class DisplaySystem extends System {
                         if (clickedUnit) {
                             // Set drag entity position based on mouse cursor
                             if (position && 'x' in position && 'y' in position) {
+                                console.log(position);
                                 entityPosition = {
                                     x: position.x / this.#spriteSize,
                                     y: position.y / this.#spriteSize,
@@ -386,9 +411,9 @@ export default class DisplaySystem extends System {
                     if (transform.has(entity)) {
                         entityTransform = transform.get(entity);
                         entityTransform.setTarget(entityPosition.x, entityPosition.y);
-                        entityTransform.update(this.#spriteSize, deltaTime);
+                        entityTransform.update(deltaTime);
                     } else if (entityPosition) {
-                        entityTransform = new Transform(entityPosition.x, entityPosition.y, entityPosition.z, entitySpeed, this.#spriteSize);
+                        entityTransform = new Transform(entityPosition.x, entityPosition.y, entityPosition.z, entitySpeed);
                         transform.add(entity, entityTransform);
                     }
 

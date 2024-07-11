@@ -12,14 +12,14 @@ import { GameState } from "./data/enums.js";
 
 function App({ gameEngine }) {
   const { gameState } = useSelector((state) => state.gameState);
-  const { input } = gameEngine;
+  const { input, display } = gameEngine;
   function handlePointerUp(event) {
     console.log(event);
     input.pointerUp(event);
   }
   
   function handleResize(event) {
-    console.log(event.currentTarget.innerWidth, event.currentTarget.innerHeight);
+    display.resize(event.currentTarget.innerWidth, event.currentTarget.innerHeight)
   }
 
   useEffect(() => {

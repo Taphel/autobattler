@@ -27,6 +27,8 @@ export default function BattleScreen({ gameEngine }) {
         loadTextures().then(value => setBattleTextures(value));
     }, [])
 
+    console.log(battleTextures);
+
     return (
         <Stage
             x={0}
@@ -49,10 +51,10 @@ export default function BattleScreen({ gameEngine }) {
                             <Sprite
                                 key={tile.id}
                                 texture={battleTextures[tile.sprite]}
-                                x={tile.x}
-                                y={tile.y}
+                                x={tile.x * spriteSize}
+                                y={tile.y * spriteSize}
                                 zIndex={2}
-                                scale={1}
+                                scale={spriteSize / 32}
                                 alpha={tile.alpha}
                             />
                         )
@@ -66,10 +68,10 @@ export default function BattleScreen({ gameEngine }) {
                                 pointerover={() => input.pointerOver({ id: entity.id })}
                                 pointerout={input.pointerOut}
                                 texture={battleTextures[entity.sprite]}
-                                x={entity.x}
-                                y={entity.y}
+                                x={entity.x * spriteSize}
+                                y={entity.y * spriteSize}
                                 zIndex={entity.z}
-                                scale={entity.scale}
+                                scale={{x: entity.scale.x * (spriteSize / 32), y: spriteSize / 32}}
                                 alpha={entity.alpha}
                                 anchor={entity.anchor}
                             />
@@ -77,7 +79,6 @@ export default function BattleScreen({ gameEngine }) {
                     })}
                 </Container>
             }
-
         </Stage>
     )
 }

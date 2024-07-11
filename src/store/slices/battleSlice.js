@@ -21,11 +21,14 @@ export const battleSlice = createSlice({
         },
         setEntitySprites: (state, action) => {
             state.entities = action.payload
+        },
+        updateTileSize: (state, action) => {
+            state.spriteSize = action.payload;
         }
     }
 })
 
 
 // // Action creators are generated for each case reducer function
-export const { initializeBattleTiles, setEntitySprites } = battleSlice.actions
+export const { initializeBattleTiles, setEntitySprites, updateTileSize } = battleSlice.actions
 export default battleSlice.reducer

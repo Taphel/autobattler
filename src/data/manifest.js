@@ -1,3 +1,5 @@
+import { SCALE_MODES } from "pixi.js"
+
 const manifest = {
     bundles: [
         {
@@ -121,9 +123,9 @@ const manifest = {
                 },
                 {
                     name: "treasure",
-                    src: "/sprites/map/treasure.png"
+                    src: "/sprites/map/treasure.png" 
                 },
-            ]
+            ],
         },
         {
             name: "battle",
@@ -184,5 +186,11 @@ const manifest = {
         }
     ]
 }
+
+manifest.bundles.forEach(bundle => {
+    bundle.assets.forEach(asset => {
+        asset.data = {scaleMode: SCALE_MODES.NEAREST}
+    })
+})
 
 export default manifest

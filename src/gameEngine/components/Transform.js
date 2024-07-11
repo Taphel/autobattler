@@ -8,10 +8,10 @@ export default class Transform extends Component {
     #z;
     #speed;
 
-    constructor(x = 0, y = 0, z = 0, speed = 0, spriteSize = 64) {
+    constructor(x = 0, y = 0, z = 0, speed = 0) {
         super();
-        this.#x = x * spriteSize;
-        this.#y = y * spriteSize;
+        this.#x = x;
+        this.#y = y;
         this.#z = z;
         this.#speed = speed;
     }
@@ -28,11 +28,11 @@ export default class Transform extends Component {
         this.#target = {x: x, y: y};
     }
     
-    update(spriteSize, deltaTime) {
+    update(deltaTime) {
         // Update canvas position
         if (this.#target) {
-            const targetX = this.#target?.x * spriteSize;
-            const targetY = this.#target?.y * spriteSize;
+            const targetX = this.#target?.x
+            const targetY = this.#target?.y;
 
             if (this.#speed === 0) {
                 this.#x = targetX;

@@ -34,7 +34,7 @@ export default function MapDisplay({ gameEngine }) {
             y={0}
             width={screenWidth * spriteSize}
             height={screenHeight * spriteSize}
-            options={{ background: "#181425" }}
+            options={{ background: "#181425"}}
         >
             {mapTextures &&
                 <Container
@@ -51,8 +51,8 @@ export default function MapDisplay({ gameEngine }) {
                                 pointerout={input.pointerOut}
                                 pointerdown={() => input.pointerDown(node.gridPosition)}
                                 texture={mapTextures[node.sprite]}
-                                x={node.x}
-                                y={node.y}
+                                x={node.x * spriteSize}
+                                y={node.y * spriteSize}
                                 zIndex={2}
                                 scale={spriteSize / 32}
                                 alpha={node.alpha} 
@@ -64,8 +64,8 @@ export default function MapDisplay({ gameEngine }) {
                             <Sprite 
                                 key={path.id} 
                                 texture={mapTextures[path.sprite]}
-                                x={path.x} 
-                                y={path.y} 
+                                x={path.x * spriteSize} 
+                                y={path.y * spriteSize} 
                                 zIndex={1} 
                                 scale={spriteSize / 32} 
                                 alpha={path.alpha} 
@@ -75,7 +75,15 @@ export default function MapDisplay({ gameEngine }) {
                     {cursors.map((cursor) => {
                         // console.log(cursor);
                         return (
-                            <Sprite key={cursor.id} image={cursor.sprite} x={cursor.x} y={cursor.y} zIndex={cursor.z} scale={1} alpha={cursor.alpha} />
+                                <Sprite 
+                                key={cursor.id} 
+                                texture={mapTextures[cursor.sprite]} 
+                                x={cursor.x * spriteSize} 
+                                y={cursor.y * spriteSize} 
+                                zIndex={cursor.z} 
+                                scale={spriteSize / 32} 
+                                alpha={cursor.alpha} 
+                            />
                         )
                     })}
                 </Container>
