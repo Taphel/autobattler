@@ -39,7 +39,7 @@ export default class DisplaySystem extends System {
         return this.#pendingAnimations;
     }
 
-    initializeDisplay(dungeonLevel, entities, screenWidth, screenHeight, boardSize, sideBoardSize, xMapOffset, yMapOffset, xBattleOffset, yBattleOffset, spriteSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY) {
+    initializeDisplay(dungeonLevel, entities, screenWidth, screenHeight, xMapOffset, yMapOffset, spriteSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY) {
         // Initialize display system constants
         this.#spriteSize = spriteSize;
         this.#playerStartX = playerStartX;
@@ -84,7 +84,7 @@ export default class DisplaySystem extends System {
                     {
                         id: `MAPNODE_(${x};${y})`,
                         gridPosition: room.position,
-                        sprite: `/sprites/tilesets/${spriteSize}/map/${nodeSprite}.png`,
+                        sprite: `${nodeSprite}`,
                         alpha: 0,
                         x: y * spriteSize,
                         y: x * spriteSize
@@ -98,7 +98,7 @@ export default class DisplaySystem extends System {
                     if (child.position.x < x) {
                         pathDispatchData.push({
                             id: `MAPPATH_(${x};${y};${child.position.x};${child.position.y})`,
-                            sprite: `/sprites/tilesets/${spriteSize}/map/pathtop.png`,
+                            sprite: `pathtop`,
                             alpha: 0,
                             x: y * spriteSize + spriteSize / 2,
                             y: x * spriteSize - spriteSize / 2
@@ -108,7 +108,7 @@ export default class DisplaySystem extends System {
                     if (child.position.x > x) {
                         pathDispatchData.push({
                             id: `MAPPATH_(${x};${y};${child.position.x};${child.position.y})`,
-                            sprite: `/sprites/tilesets/${spriteSize}/map/pathbottom.png`,
+                            sprite: `pathbottom`,
                             alpha: 0,
                             x: y * spriteSize + spriteSize / 2,
                             y: x * spriteSize + spriteSize / 2
@@ -118,7 +118,7 @@ export default class DisplaySystem extends System {
                     if (child.position.x === x) {
                         pathDispatchData.push({
                             id: `MAPPATH_(${x};${y};${child.position.x};${child.position.y})`,
-                            sprite: `/sprites/tilesets/${spriteSize}/map/pathright.png`,
+                            sprite: `pathright`,
                             alpha: 0,
                             x: y * spriteSize + spriteSize / 2,
                             y: x * spriteSize
@@ -145,41 +145,41 @@ export default class DisplaySystem extends System {
             const y = Math.floor(i / screenWidth);
             let tileSprite;
             if (y === 1) {
-                tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/wall.png`;
+                tileSprite = `wall`;
             }
 
             if (y === 2) {
-                tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/ground.png`;
+                tileSprite = `ground`;
             }
 
             if (y === 3) {
-                tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/border.png`;
+                tileSprite = `border`;
             }
 
             if (y === 4) {
                 if (x === 3) {
-                    tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/sidecornerleft.png`;
+                    tileSprite = `sidecornerleft`;
                 }
 
                 if (x > 3) {
                     if (x < 12) {
-                        tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/sideground.png`;
+                        tileSprite = `sideground`;
                     } else if (x === 12) {
-                        tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/sidecornerright.png`;
+                        tileSprite = `sidecornerright`;
                     }
                 }
             }
 
             if (y === 5) {
                 if (x === 3) {
-                    tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/sidecornerborderleft.png`;
+                    tileSprite = `sidecornerborderleft`;
                 }
 
                 if (x > 3) {
                     if (x < 12) {
-                        tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/sideborder.png`;
+                        tileSprite = `sideborder`;
                     } else if (x === 12) {
-                        tileSprite = `/sprites/tilesets/${spriteSize}/${dungeonLevel.tier}/sidecornerborderright.png`;
+                        tileSprite = `sidecornerborderright`;
                     }
                 }
             }
@@ -197,8 +197,6 @@ export default class DisplaySystem extends System {
             tiles: tileDispatchData,
             screenWidth: screenWidth,
             screenHeight: screenHeight,
-            xOffset: xBattleOffset,
-            yOffset: yBattleOffset,
             spriteSize: spriteSize
         }));
 
@@ -248,7 +246,7 @@ export default class DisplaySystem extends System {
                         const cursorId = this.#mapCursorIds[i];
                         const { x, y } = highlightedNodes[i].position;
                         const cursorTransform = new Transform(y, x, 3, 0, this.#spriteSize);
-                        const cursorAnimation = new Animation(`tilesets/${this.#spriteSize}/map/cursor`, 10, 60);
+                        const cursorAnimation = new Animation(`cursor`, 10, 60);
                         transform.add(cursorId, cursorTransform);
                         animation.add(cursorId, cursorAnimation)
                     }
@@ -296,7 +294,7 @@ export default class DisplaySystem extends System {
                     const { x, y } = dungeonLevel.currentRoom.position;
                     selectTransform = new Transform(y, x, 3, 0, this.#spriteSize);
                     transform.add(this.#mapSelectId, selectTransform);
-                    selectAnimation = new Animation(`tilesets/${this.#spriteSize}/map/selected`, 10, 45, true);
+                    selectAnimation = new Animation(`selected`, 10, 45, true);
                     animation.add(this.#mapSelectId, selectAnimation);
                 }
 
@@ -402,7 +400,7 @@ export default class DisplaySystem extends System {
                         } else {
                             const unitData = unit.get(entity);
                             const { path, frames, speed } = unitData.sprite;
-                            entityAnimation = new Animation(`units/${this.#spriteSize}/${path}`, frames, speed);
+                            entityAnimation = new Animation(`${path}`, frames, speed);
                             animation.add(entity, entityAnimation);
                         }
                     } else {
@@ -418,7 +416,7 @@ export default class DisplaySystem extends System {
                         if (entityAnimation) {
                             const { sprites, currentFrame } = entityAnimation;
                             entitySprite = sprites[currentFrame];
-                        } else entitySprite = `/sprites/units/${this.#spriteSize}/empty.png`;
+                        } else entitySprite = `empty`;
 
                         entityDispatchData.push({
                             id: entity,

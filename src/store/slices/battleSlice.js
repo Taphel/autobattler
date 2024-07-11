@@ -9,19 +9,14 @@ export const battleSlice = createSlice({
         entities:[],
         screenWidth: 0,
         screenHeight: 0,
-        xOffset: 0,
-        yOffset: 0,
         spriteSize: 0,
     },
     reducers: {
         initializeBattleTiles: (state, action) => {
-            const { tiles, screenWidth, screenHeight, xOffset, yOffset, spriteSize } = action.payload;
-
+            const { tiles, screenWidth, screenHeight, spriteSize } = action.payload;
             state.tiles = tiles;
             state.screenWidth = screenWidth;
             state.screenHeight = screenHeight;
-            state.xOffset = xOffset,
-            state.yOffset = yOffset,
             state.spriteSize = spriteSize;
         },
         setEntitySprites: (state, action) => {

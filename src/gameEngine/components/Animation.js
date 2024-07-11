@@ -13,10 +13,10 @@ export default class Animation extends Component {
     constructor(sprite, frames, frameTime = 30, playOnce = false) {
         super();
         if (frames === 1) {
-            this.sprites.push(`/sprites/${sprite}.png`)
+            this.sprites.push(`${sprite}`)
         } else {
             for (let i = 0; i < frames; i++) {
-                this.#sprites.push(`/sprites/${sprite}${i}.png`)
+                this.#sprites.push(`${sprite}${i}`)
             }
         }
         

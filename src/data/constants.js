@@ -6,11 +6,9 @@ const constants = {
     // Display
     screenWidth: 16,
     screenHeight: 9,
-    spriteSize: 64,
+    spriteSize: 32,
     xMapOffset: 3,
     yMapOffset: 1,
-    xBattleOffset: 0,
-    yBattleOffset: 1,
     playerStartX: 7,
     enemyStartX: 9,
     boardY: 2,

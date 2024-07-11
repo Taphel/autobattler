@@ -3,7 +3,6 @@ import ComponentSet from "./ComponentSet.js";
 
 // Systems import
 import GenerationSystem from "./systems/GenerationSystem.js";
-import PhysicsSystem from "./systems/PhysicsSystem.js";
 import GameSystem from "./systems/GameSystem.js";
 import DisplaySystem from "./systems/DisplaySystem.js";
 import InputSystem from "./systems/InputSystem.js";
@@ -44,8 +43,8 @@ class GameEngine {
         this.#unitPool = generation.generateUnitPool(this.#entities, this.#components, unitData, unitCount, boardSize, sideBoardSize, startPlayerUnits);
 
         // Import display constants then initialize map display
-        const { screenWidth, screenHeight, xMapOffset, yMapOffset, xBattleOffset, yBattleOffset, spriteSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY } = constants;
-        display.initializeDisplay(this.#dungeonLevel, this.#entities, screenWidth, screenHeight, boardSize, sideBoardSize, xMapOffset, yMapOffset, xBattleOffset, yBattleOffset, spriteSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY);
+        const { screenWidth, screenHeight, xMapOffset, yMapOffset, spriteSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY } = constants;
+        display.initializeDisplay(this.#dungeonLevel, this.#entities, screenWidth, screenHeight, xMapOffset, yMapOffset, spriteSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY);
 
         setInterval(() => {
             this.#updateLoop()
