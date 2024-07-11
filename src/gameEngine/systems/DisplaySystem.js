@@ -223,7 +223,6 @@ export default class DisplaySystem extends System {
     }
 
     resize(width, height) {
-        console.log(width, height);
         let spriteSize = 32;
         let maxWidth = width / spriteSize;
         let maxHeight = height / spriteSize;
@@ -348,7 +347,7 @@ export default class DisplaySystem extends System {
                 const { over, down, position } = pointerInput;
                 const clickedUnit = down && 'id' in down && unitPool.playerUnits.includes(down?.id);
                 entities.forEach(entity => {
-                    let entityTransform, entityAnimation, entityPosition, entitySpeed = 0.01, scale = { x: 1, y: 1 }, interactable = false;
+                    let entityTransform, entityAnimation, entityPosition, entitySpeed = 0.015, scale = { x: 1, y: 1 }, interactable = false;
                     // Determine unit X and Y based on faction and index in unit arrays;
                     const playerUnit = unitPool.playerUnits.includes(entity);
                     const enemyUnit = unitPool.enemyUnits.includes(entity);
@@ -383,7 +382,6 @@ export default class DisplaySystem extends System {
                         if (clickedUnit) {
                             // Set drag entity position based on mouse cursor
                             if (position && 'x' in position && 'y' in position) {
-                                console.log(position);
                                 entityPosition = {
                                     x: position.x / this.#spriteSize,
                                     y: position.y / this.#spriteSize,

@@ -14,19 +14,15 @@ export default class InputSystem extends System {
     #pointerOverTarget = null;
     #pointerDownTarget = null;
     #pointerPosition;
-    pointerOut;
-    pointerUp;
+    #pointerUp = false;
+    pointerLeave
     #storedInputs = [];
     
     constructor () {
         super();
-        this.pointerOut = () => {
+        this.pointerLeave = () => {
             this.#pointerOverTarget = null;
             console.log("POINTEROUT:", this.#pointerOverTarget)
-        }
-        this.pointerUp = () => {
-            this.#pointerDownTarget = null;
-            console.log("POINTERUP", this.#pointerDownTarget);
         }
     }
 
@@ -51,11 +47,20 @@ export default class InputSystem extends System {
         console.log(target);
         this.#pointerDownTarget = target;
         console.log("POINTERDOWN:", this.#pointerDownTarget)
-        
+    }
+
+    pointerUp() {
+        console.log("POINTERUP");
+        this.#pointerUp = true;
     }
 
     pointerMove(target) {
         this.#pointerPosition = target;
+    }
+
+    clearPointerInputs() {
+        this.#pointerUp = false;
+        this.#pointerDownTarget = null;
     }
 
     keyDown(event) {
@@ -119,6 +124,7 @@ export default class InputSystem extends System {
         return {
             over: this.#pointerOverTarget,
             down: this.#pointerDownTarget,
+            up: this.#pointerUp,
             position: this.#pointerPosition
         }
     }

@@ -14,8 +14,7 @@ function App({ gameEngine }) {
   const { gameState } = useSelector((state) => state.gameState);
   const { input, display } = gameEngine;
   function handlePointerUp(event) {
-    console.log(event);
-    input.pointerUp(event);
+    input.pointerUp();
   }
   
   function handleResize(event) {

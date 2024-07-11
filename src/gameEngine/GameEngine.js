@@ -82,6 +82,8 @@ class GameEngine {
         // Read input and update game state
         this.#gameState = game.update(this.#gameState, this.#dungeonLevel, this.#unitPool, pointerInput, this.#entities, this.#components);
 
+        if (pointerInput.up) input.clearPointerInputs();
+
         // Update display
         this.#gameState = display.update(this.#gameState, this.#dungeonLevel, this.#entities, this.#components, this.#unitPool, pointerInput, deltaTime);
     }

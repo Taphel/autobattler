@@ -48,7 +48,7 @@ export default function MapDisplay({ gameEngine }) {
                                 key={node.id}
                                 eventMode={"static"}
                                 pointerover={() => input.pointerOver(node.gridPosition)}
-                                pointerout={input.pointerOut}
+                                pointerleave={input.pointerLeave}
                                 pointerdown={() => input.pointerDown(node.gridPosition)}
                                 texture={mapTextures[node.sprite]}
                                 x={node.x * spriteSize}
