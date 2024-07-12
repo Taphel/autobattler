@@ -26,7 +26,8 @@ export default function BattleScreen({ gameEngine }) {
         }
         loadTextures().then(value => setBattleTextures(value));
     }, [])
-    
+
+    console.log(entities.find(entity => entity.id === 29));
     return (
         <Stage
             x={0}

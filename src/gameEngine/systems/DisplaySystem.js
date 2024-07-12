@@ -425,7 +425,7 @@ export default class DisplaySystem extends System {
                                 if (entityAnimation) {
                                     entityAnimation.update(deltaTime);
                                 } else {
-                                    entityAnimation = new Animation(`tilecursor`, 1, 0);
+                                    entityAnimation = new Animation(`tilecursor`, 2, 240);
                                     animation.add(entity, entityAnimation);
                                 }
                             }
@@ -458,8 +458,6 @@ export default class DisplaySystem extends System {
                             entityAnimation = new Animation(`${path}`, frames, speed);
                             animation.add(entity, entityAnimation);
                         }
-                    } else {
-                        animation.remove(entity);
                     }
 
                     // Create dispatch data for this entity
