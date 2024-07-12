@@ -38,29 +38,8 @@ export default class Transform extends Component {
                 this.#x = targetX;
                 this.#y = targetY;
             } else {
-                if (this.#x !== targetX) {
-                    const direction = Math.sign(targetX - this.#x);
-                    switch (direction) {
-                        case 1:
-                            this.#x = this.#x + Math.min(this.#speed * deltaTime * direction, targetX - this.#x);
-                            break;
-                        case -1:
-                            this.#x = this.#x + Math.max(this.#speed * deltaTime * direction, targetX - this.#x);
-                            break;
-                    }
-                }
-    
-                if (this.#y !== targetY) {
-                    const direction = Math.sign(targetY - this.#y);
-                    switch (direction) {
-                        case 1:
-                            this.#y = this.#y + Math.min(this.#speed * deltaTime * direction, targetY - this.#y);
-                            break;
-                        case -1:
-                            this.#y = this.#y + Math.max(this.#speed * deltaTime * direction, targetY - this.#y);
-                            break;
-                    }
-                }
+                this.#x += Math.sign(targetX - this.#x) * Math.min(this.#speed * deltaTime, Math.abs(targetX - this.#x));
+                this.#y += Math.sign(targetY - this.#y) * Math.min(this.#speed * deltaTime, Math.abs(targetY - this.#y));
                 if (this.#x === targetX && this.#y === targetY) this.#target = null;
             }
         }

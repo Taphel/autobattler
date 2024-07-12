@@ -9,10 +9,10 @@ const constants = {
     spriteSize: 32,
     xMapOffset: 3,
     yMapOffset: 1,
-    playerStartX: 7,
+    playerStartX: 6,
     enemyStartX: 9,
     boardY: 2,
-    sideBoardX: 5,
+    sideBoardX: 4,
     sideBoardY: 4,
     // Battle system
     unitCount: 20,

@@ -28,7 +28,7 @@ export default class DisplaySystem extends System {
     #sideBoardY;
     // Dynamic data
     #mapCursorIds = [];
-    #mapSelectId;
+    #selectId;
     #dragEntityId;
     #mapAlpha = 0;
     #displayQueue = [];
@@ -213,7 +213,7 @@ export default class DisplaySystem extends System {
         }
 
         const selectCursorId = entities.length;
-        this.#mapSelectId = selectCursorId;
+        this.#selectId = selectCursorId;
         entities.push(selectCursorId);
 
         // Allocate memory for drag and drop entity
@@ -303,9 +303,9 @@ export default class DisplaySystem extends System {
                 return GameState.map;
             case GameState.roomStart:
                 let selectTransform, selectAnimation;
-                if (transform.has(this.#mapSelectId) && animation.has(this.#mapSelectId)) {
-                    selectTransform = transform.get(this.#mapSelectId);
-                    selectAnimation = animation.get(this.#mapSelectId);
+                if (transform.has(this.#selectId) && animation.has(this.#selectId)) {
+                    selectTransform = transform.get(this.#selectId);
+                    selectAnimation = animation.get(this.#selectId);
                     const animationUpdate = selectAnimation.update(deltaTime);
                     if (animationUpdate.lastFrame) {
                         this.#mapAlpha -= 0.05;
@@ -316,9 +316,9 @@ export default class DisplaySystem extends System {
                     this.#clearMapCursors(components);
                     const { x, y } = dungeonLevel.currentRoom.position;
                     selectTransform = new Transform(y, x, 3, 0);
-                    transform.add(this.#mapSelectId, selectTransform);
+                    transform.add(this.#selectId, selectTransform);
                     selectAnimation = new Animation(`selected`, 10, 45, true);
-                    animation.add(this.#mapSelectId, selectAnimation);
+                    animation.add(this.#selectId, selectAnimation);
                 }
 
                 // if fade is finished, switch gameState and clear out components
@@ -329,7 +329,7 @@ export default class DisplaySystem extends System {
                     const { x, y, z } = selectTransform.position;
                     const { sprites, currentFrame } = selectAnimation;
                     cursorDispatchData.push({
-                        id: this.#mapSelectId,
+                        id: this.#selectId,
                         x: x,
                         y: y,
                         z: z,
@@ -345,17 +345,20 @@ export default class DisplaySystem extends System {
                 const entityDispatchData = [];
                 // Read pointer input
                 const { over, down, position } = pointerInput;
-                const clickedUnit = down && 'id' in down && unitPool.playerUnits.includes(down?.id);
+                const clickedUnit = down && 'id' in down && unitPool.playerUnits.includes(down?.id) && unit.has(down?.id);
+
                 entities.forEach(entity => {
                     let entityTransform, entityAnimation, entityPosition, entitySpeed = 0.015, scale = { x: 1, y: 1 }, interactable = false;
                     // Determine unit X and Y based on faction and index in unit arrays;
                     const playerUnit = unitPool.playerUnits.includes(entity);
                     const enemyUnit = unitPool.enemyUnits.includes(entity);
                     const dragEntity = entity === this.#dragEntityId;
+                    const select = entity === this.#selectId;
+
                     if (playerUnit || enemyUnit) {
                         interactable = true;
                         if (playerUnit) {
-                            scale = { x: -1, y: 1 }
+                            scale = { x: 1, y: 1 }
                             const unitIndex = entity - unitPool.playerUnits[0];
                             entityPosition = {
                                 x: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
@@ -363,7 +366,7 @@ export default class DisplaySystem extends System {
                                     this.#sideBoardX + (unitIndex - unitPool.boardSize),
                                 y: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
                                     this.#boardY : this.#sideBoardY,
-                                z: 3
+                                z: 4
                             }
                         }
 
@@ -372,7 +375,7 @@ export default class DisplaySystem extends System {
                             entityPosition = {
                                 x: unitIndex + this.#enemyStartX,
                                 y: this.#boardY,
-                                z: 3
+                                z: 4
                             }
                         }
                     }
@@ -385,7 +388,7 @@ export default class DisplaySystem extends System {
                                 entityPosition = {
                                     x: position.x / this.#spriteSize,
                                     y: position.y / this.#spriteSize,
-                                    z: 4
+                                    z: 5
                                 }
                                 entitySpeed = 0;
                             }
@@ -405,16 +408,45 @@ export default class DisplaySystem extends System {
                         }
                     }
 
-                    // Update or create the transform component based on the new position;
-                    if (transform.has(entity)) {
-                        entityTransform = transform.get(entity);
-                        entityTransform.setTarget(entityPosition.x, entityPosition.y);
-                        entityTransform.update(deltaTime);
-                    } else if (entityPosition) {
-                        entityTransform = new Transform(entityPosition.x, entityPosition.y, entityPosition.z, entitySpeed);
-                        transform.add(entity, entityTransform);
+                    if (select && clickedUnit) {
+                        if (over) {
+                            if ('id' in over && unitPool.playerUnits.includes(over?.id)) {
+                                const unitIndex = over.id - unitPool.playerUnits[0];
+                                entityPosition = {
+                                    x: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
+                                        this.#playerStartX - unitIndex:
+                                        this.#sideBoardX + (unitIndex - unitPool.boardSize),
+                                    y: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
+                                        this.#boardY + 0.5 : this.#sideBoardY + 0.5,
+                                    z: 3
+                                }
+
+                                entityAnimation = animation.has(entity) ? animation.get(entity) : null;
+                                if (entityAnimation) {
+                                    entityAnimation.update(deltaTime);
+                                } else {
+                                    entityAnimation = new Animation(`tilecursor`, 1, 0);
+                                    animation.add(entity, entityAnimation);
+                                }
+                            }
+                        }
                     }
 
+
+                    // Update or create the transform component based on the new position;
+                    if (entityPosition) {
+                        if (transform.has(entity)) {
+                            entityTransform = transform.get(entity);
+                            entityTransform.setTarget(entityPosition.x, entityPosition.y);
+                            entityTransform.update(deltaTime);
+                        } else {
+                            entityTransform = new Transform(entityPosition.x, entityPosition.y, entityPosition.z, entitySpeed);
+                            transform.add(entity, entityTransform);
+                        }
+                    } else {
+                        transform.remove(entity);
+                    }
+                    
                     // Update or create animation component if a unit is on this spot
                     if (unit.has(entity)) {
                         entityAnimation = animation.has(entity) ? animation.get(entity) : null;
@@ -427,9 +459,7 @@ export default class DisplaySystem extends System {
                             animation.add(entity, entityAnimation);
                         }
                     } else {
-                        if (entityAnimation) {
-                            animation.remove(entity);
-                        }
+                        animation.remove(entity);
                     }
 
                     // Create dispatch data for this entity
@@ -449,7 +479,7 @@ export default class DisplaySystem extends System {
                             sprite: entitySprite,
                             alpha: clickedUnit && entity === down?.id ? 0.5 : 1,
                             scale: scale,
-                            anchor: dragEntity ? 0.5 : 0,
+                            anchor: dragEntity ? { x: 0.5, y: 0.5 } : { x: 0, y: 0 },
                             interactable: interactable
                         })
                     }
@@ -471,10 +501,10 @@ export default class DisplaySystem extends System {
     }
 
     #clearMapSelect(components) {
-        if (!this.#mapSelectId) return;
+        if (!this.#selectId) return;
         const { transform, animation } = components;
         // Clear cursor display components
-        transform.remove(this.#mapSelectId);
-        animation.remove(this.#mapSelectId);
+        transform.remove(this.#selectId);
+        animation.remove(this.#selectId);
     }
 }

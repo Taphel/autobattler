@@ -26,7 +26,7 @@ export default function BattleScreen({ gameEngine }) {
         }
         loadTextures().then(value => setBattleTextures(value));
     }, [])
-
+    
     return (
         <Stage
             x={0}
@@ -39,9 +39,7 @@ export default function BattleScreen({ gameEngine }) {
                 <Container
                     x={0}
                     y={0}
-                    sortableChildren={true}
                     eventMode={'static'}
-                    hitArea={new Rectangle(0, 0, screenWidth * spriteSize, screenHeight * spriteSize)}
                     pointermove={(e) => input.pointerMove(e.global)}
                 >
                     {tiles.map((tile) => {
@@ -63,8 +61,8 @@ export default function BattleScreen({ gameEngine }) {
                                 key={entity.id}
                                 eventMode={entity.interactable ? "static" : "none"}
                                 pointerdown={() => { input.pointerDown({ id: entity.id }) }}
-                                pointerover={() => input.pointerOver({ id: entity.id })}
-                                pointerleave={input.pointerLeave}
+                                pointerover={() => {console.log(entity.x * spriteSize, entity.y * spriteSize, spriteSize) ; input.pointerOver({ id: entity.id })}}
+                                pointerout={input.pointerOut}
                                 texture={battleTextures[entity.sprite]}
                                 x={entity.x * spriteSize}
                                 y={entity.y * spriteSize}

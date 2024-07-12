@@ -171,6 +171,10 @@ const manifest = {
                     src: "/sprites/battle/tiles/wall.png"
                 },
                 {
+                    name: "tilecursor",
+                    src: "/sprites/battle/tiles/tilecursor.png"
+                },
+                {
                     name: "empty",
                     src: "/sprites/battle/units/empty.png"
                 },

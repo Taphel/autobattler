@@ -15,12 +15,12 @@ export default class InputSystem extends System {
     #pointerDownTarget = null;
     #pointerPosition;
     #pointerUp = false;
-    pointerLeave
+    pointerOut
     #storedInputs = [];
     
     constructor () {
         super();
-        this.pointerLeave = () => {
+        this.pointerOut = () => {
             this.#pointerOverTarget = null;
             console.log("POINTEROUT:", this.#pointerOverTarget)
         }
@@ -55,6 +55,7 @@ export default class InputSystem extends System {
     }
 
     pointerMove(target) {
+        console.log(target.x / 32, target.y / 32);
         this.#pointerPosition = target;
     }
 
