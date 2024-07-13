@@ -287,13 +287,13 @@ export default class DisplaySystem extends System {
 
                     if (cursorTransform && cursorAnimation) {
                         const { position } = cursorTransform;
-                        const { sprites, currentFrame } = cursorAnimation;
+                        const { sprite } = cursorAnimation;
                         cursorDispatchData.push({
                             id: id,
                             x: position.x,
                             y: position.y,
                             z: position.z,
-                            sprite: `${sprites[currentFrame]}`,
+                            sprite: sprite,
                             alpha: 1,
                         })
                     }
@@ -327,13 +327,13 @@ export default class DisplaySystem extends System {
                     newState = GameState.idle;
                 } else {
                     const { x, y, z } = selectTransform.position;
-                    const { sprites, currentFrame } = selectAnimation;
+                    const { sprite } = selectAnimation;
                     cursorDispatchData.push({
                         id: this.#selectId,
                         x: x,
                         y: y,
                         z: z,
-                        sprite: `${sprites[currentFrame]}`,
+                        sprite: sprite,
                         alpha: this.#mapAlpha,
                     })
                 }
@@ -358,14 +358,14 @@ export default class DisplaySystem extends System {
                     if (playerUnit || enemyUnit) {
                         interactable = true;
                         if (playerUnit) {
-                            scale = { x: 1, y: 1 }
+                            scale = { x: -1, y: 1 }
                             const unitIndex = entity - unitPool.playerUnits[0];
                             entityPosition = {
                                 x: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
-                                    this.#playerStartX - unitIndex :
-                                    this.#sideBoardX + (unitIndex - unitPool.boardSize),
+                                    this.#playerStartX - unitIndex + 0.5 :
+                                    this.#sideBoardX + (unitIndex - unitPool.boardSize) + 0.5,
                                 y: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
-                                    this.#boardY : this.#sideBoardY,
+                                    this.#boardY + 0.5 : this.#sideBoardY + 0.5,
                                 z: 4
                             }
                         }
@@ -373,9 +373,22 @@ export default class DisplaySystem extends System {
                         if (enemyUnit) {
                             const unitIndex = entity - unitPool.enemyUnits[0];
                             entityPosition = {
-                                x: unitIndex + this.#enemyStartX,
-                                y: this.#boardY,
+                                x: unitIndex + this.#enemyStartX + 0.5,
+                                y: this.#boardY + 0.5,
                                 z: 4
+                            }
+                        }
+
+                        // Update or create animation component if a unit is on this spot
+                        if (unit.has(entity)) {
+                            entityAnimation = animation.has(entity) ? animation.get(entity) : null;
+                            if (entityAnimation) {
+                                entityAnimation.update(deltaTime);
+                            } else {
+                                const unitData = unit.get(entity);
+                                const { path, frames, speed } = unitData.sprite;
+                                entityAnimation = new Animation(`${path}`, frames, speed);
+                                animation.add(entity, entityAnimation);
                             }
                         }
                     }
@@ -414,10 +427,10 @@ export default class DisplaySystem extends System {
                                 const unitIndex = over.id - unitPool.playerUnits[0];
                                 entityPosition = {
                                     x: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
-                                        this.#playerStartX - unitIndex:
-                                        this.#sideBoardX + (unitIndex - unitPool.boardSize),
+                                        this.#playerStartX - unitIndex + 0.5:
+                                        this.#sideBoardX + (unitIndex - unitPool.boardSize) + 0.5,
                                     y: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
-                                        this.#boardY + 0.5 : this.#sideBoardY + 0.5,
+                                        this.#boardY + 1 : this.#sideBoardY + 1,
                                     z: 3
                                 }
 
@@ -440,33 +453,21 @@ export default class DisplaySystem extends System {
                             entityTransform.setTarget(entityPosition.x, entityPosition.y);
                             entityTransform.update(deltaTime);
                         } else {
-                            entityTransform = new Transform(entityPosition.x, entityPosition.y, entityPosition.z, entitySpeed);
+                            entityTransform = new Transform(entityPosition.x, entityPosition.y, entityPosition.z, entitySpeed, scale.x, scale.y);
                             transform.add(entity, entityTransform);
                         }
                     } else {
                         transform.remove(entity);
                     }
                     
-                    // Update or create animation component if a unit is on this spot
-                    if (unit.has(entity)) {
-                        entityAnimation = animation.has(entity) ? animation.get(entity) : null;
-                        if (entityAnimation) {
-                            entityAnimation.update(deltaTime);
-                        } else {
-                            const unitData = unit.get(entity);
-                            const { path, frames, speed } = unitData.sprite;
-                            entityAnimation = new Animation(`${path}`, frames, speed);
-                            animation.add(entity, entityAnimation);
-                        }
-                    }
-
                     // Create dispatch data for this entity
                     if (entityTransform) {
                         const { x, y, z } = entityTransform.position;
+                        const { scale, anchor } = entityTransform;
                         let entitySprite;
                         if (entityAnimation) {
-                            const { sprites, currentFrame } = entityAnimation;
-                            entitySprite = sprites[currentFrame];
+                            const { sprite } = entityAnimation;
+                            entitySprite = sprite;
                         } else entitySprite = `empty`;
 
                         entityDispatchData.push({
@@ -477,7 +478,7 @@ export default class DisplaySystem extends System {
                             sprite: entitySprite,
                             alpha: clickedUnit && entity === down?.id ? 0.5 : 1,
                             scale: scale,
-                            anchor: dragEntity ? { x: 0.5, y: 0.5 } : { x: 0, y: 0 },
+                            anchor: anchor,
                             interactable: interactable
                         })
                     }

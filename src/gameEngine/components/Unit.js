@@ -9,7 +9,7 @@ class Ability {
     #target;
     #hits;
     #effect;
-    #casts = { current: 0, battle: 0 }
+    #casts = 0
 
     constructor(ability) {
         const { cost, target, hits, effect } = ability;

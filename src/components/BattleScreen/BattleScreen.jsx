@@ -41,6 +41,7 @@ export default function BattleScreen({ gameEngine }) {
                     x={0}
                     y={0}
                     eventMode={'static'}
+                    sortableChildren={true}
                     pointermove={(e) => input.pointerMove(e.global)}
                 >
                     {tiles.map((tile) => {

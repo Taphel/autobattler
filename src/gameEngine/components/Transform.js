@@ -7,17 +7,28 @@ export default class Transform extends Component {
     #y;
     #z;
     #speed;
+    #scale;
+    #anchor = { x: 0.5, y: 0.5 }
 
-    constructor(x = 0, y = 0, z = 0, speed = 0) {
+    constructor(x = 0, y = 0, z = 0, speed = 0, scaleX = 1, scaleY = 1) {
         super();
         this.#x = x;
         this.#y = y;
         this.#z = z;
         this.#speed = speed;
+        this.#scale = { x: scaleX, y: scaleY };
     }
 
     get position() {
         return { x: this.#x, y: this.#y, z: this.#z };
+    }
+
+    get scale() {
+        return this.#scale;
+    }
+
+    get anchor() {
+        return this.#anchor;
     }
 
     get target() {
@@ -43,10 +54,5 @@ export default class Transform extends Component {
                 if (this.#x === targetX && this.#y === targetY) this.#target = null;
             }
         }
-        
-        return ({
-                position: this.position,
-                target: this.#target
-        });
     }
 }

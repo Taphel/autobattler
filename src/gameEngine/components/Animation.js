@@ -24,12 +24,8 @@ export default class Animation extends Component {
         this.#playOnce = playOnce;
     }
 
-    get sprites() {
-        return this.#sprites;
-    }
-
-    get currentFrame() {
-        return this.#currentFrame;
+    get sprite() {
+        return this.#sprites[this.#currentFrame];
     }
 
     resetFrame() {
@@ -49,6 +45,5 @@ export default class Animation extends Component {
             playOnce: this.#playOnce,
             lastFrame: this.#currentFrame === this.#sprites.length - 1
         }
-        
     }
 }
