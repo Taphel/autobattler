@@ -19,6 +19,6 @@ export default class GenerationSystem extends System {
     }
     
     generateUnitPool(entities, components, unitData, unitCount, boardSize, sideBoardSize, startPlayerUnits) {
-        return new UnitPool(entities, components, unitData, unitCount, boardSize, sideBoardSize, startPlayerUnits);
+        return new UnitPool(entities, components, unitData, unitCount, boardSize, sideBoardSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY, startPlayerUnits);
     }
 }

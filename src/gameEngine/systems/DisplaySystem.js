@@ -241,7 +241,7 @@ export default class DisplaySystem extends System {
     }
 
     update(gameState, dungeonLevel, entities, components, unitPool, pointerInput, deltaTime) {
-        const { transform, animation, unit } = components;
+        const { tile, transform, animation, unit } = components;
         const cursorDispatchData = [];
         let newState = gameState;
         switch (gameState) {
@@ -348,6 +348,9 @@ export default class DisplaySystem extends System {
                 const clickedUnit = down && 'id' in down && unitPool.playerUnits.includes(down?.id) && unit.has(down?.id);
 
                 entities.forEach(entity => {
+                    if (tile.has(entity)) {
+                        
+                    }
                     let entityTransform, entityAnimation, entityPosition, entitySpeed = 0.015, scale = { x: 1, y: 1 }, interactable = false;
                     // Determine unit X and Y based on faction and index in unit arrays;
                     const playerUnit = unitPool.playerUnits.includes(entity);

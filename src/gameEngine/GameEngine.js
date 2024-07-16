@@ -17,6 +17,7 @@ class GameEngine {
     #entities = [];
     #components = {
         animation: new ComponentSet(100),
+        tile: new ComponentSet(100),
         transform: new ComponentSet(100),
         unit: new ComponentSet(100),
     };
@@ -38,12 +39,12 @@ class GameEngine {
         // Import systems
         const { generation, display } = this.#systems;
         // Import level generation constants then generate the dungeon
-        const { floors, floorWidth, pathCount, unitCount, boardSize, sideBoardSize, startPlayerUnits } = constants;
+        const { floors, floorWidth, pathCount, unitCount, boardSize, sideBoardSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY, startPlayerUnits } = constants;
         this.#dungeonLevel = generation.generateLevel(floors, floorWidth, pathCount, this.#dungeonTier);
-        this.#unitPool = generation.generateUnitPool(this.#entities, this.#components, unitData, unitCount, boardSize, sideBoardSize, startPlayerUnits);
+        this.#unitPool = generation.generateUnitPool(this.#entities, this.#components, unitData, unitCount, boardSize, sideBoardSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY, startPlayerUnits);
 
         // Import display constants then initialize map display
-        const { screenWidth, screenHeight, xMapOffset, yMapOffset, spriteSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY } = constants;
+        const { screenWidth, screenHeight, xMapOffset, yMapOffset, spriteSize } = constants;
         display.initializeDisplay(this.#dungeonLevel, this.#entities, screenWidth, screenHeight, xMapOffset, yMapOffset, spriteSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY);
 
         setInterval(() => {
