@@ -286,7 +286,7 @@ export default class DisplaySystem extends System {
                     const cursorAnimation = animation.has(id) ? animation.get(id) : null;
 
                     if (cursorTransform && cursorAnimation) {
-                        const { position } = cursorTransform;
+                        const { position, anchor } = cursorTransform;
                         const { sprite } = cursorAnimation;
                         cursorDispatchData.push({
                             id: id,
@@ -294,6 +294,7 @@ export default class DisplaySystem extends System {
                             y: position.y,
                             z: position.z,
                             sprite: sprite,
+                            anchor: anchor,
                             alpha: 1,
                         })
                     }
@@ -327,6 +328,7 @@ export default class DisplaySystem extends System {
                     newState = GameState.idle;
                 } else {
                     const { x, y, z } = selectTransform.position;
+                    const { anchor } = selectTransform;
                     const { sprite } = selectAnimation;
                     cursorDispatchData.push({
                         id: this.#selectId,
@@ -335,6 +337,7 @@ export default class DisplaySystem extends System {
                         z: z,
                         sprite: sprite,
                         alpha: this.#mapAlpha,
+                        anchor: anchor
                     })
                 }
 
@@ -343,49 +346,25 @@ export default class DisplaySystem extends System {
                 return newState;
             case GameState.idle:
                 const entityDispatchData = [];
-                // Read pointer input
-                const { over, down, position } = pointerInput;
-                const clickedUnit = down && 'id' in down && unitPool.playerUnits.includes(down?.id) && unit.has(down?.id);
-
                 entities.forEach(entity => {
+                    let entityTransform, entityAnimation;
                     if (tile.has(entity)) {
-                        
-                    }
-                    let entityTransform, entityAnimation, entityPosition, entitySpeed = 0.015, scale = { x: 1, y: 1 }, interactable = false;
-                    // Determine unit X and Y based on faction and index in unit arrays;
-                    const playerUnit = unitPool.playerUnits.includes(entity);
-                    const enemyUnit = unitPool.enemyUnits.includes(entity);
-                    const dragEntity = entity === this.#dragEntityId;
-                    const select = entity === this.#selectId;
-
-                    if (playerUnit || enemyUnit) {
-                        interactable = true;
-                        if (playerUnit) {
-                            scale = { x: -1, y: 1 }
-                            const unitIndex = entity - unitPool.playerUnits[0];
-                            entityPosition = {
-                                x: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
-                                    this.#playerStartX - unitIndex + 0.5 :
-                                    this.#sideBoardX + (unitIndex - unitPool.boardSize) + 0.5,
-                                y: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
-                                    this.#boardY + 0.5 : this.#sideBoardY + 0.5,
-                                z: 4
-                            }
+                        // update or set transform component based on tile data
+                        const { position, scale, speed } = tile.get(entity).value;
+                        if (transform.has(entity)) {
+                            entityTransform = transform.get(entity);
+                            entityTransform.setTarget(position.x, position.y);
+                            entityTransform.update(deltaTime);
+                        } else {
+                            entityTransform = new Transform(position.x, position.y, position.z, speed, scale.x, scale.y);
+                            transform.add(entity, entityTransform);
                         }
 
-                        if (enemyUnit) {
-                            const unitIndex = entity - unitPool.enemyUnits[0];
-                            entityPosition = {
-                                x: unitIndex + this.#enemyStartX + 0.5,
-                                y: this.#boardY + 0.5,
-                                z: 4
-                            }
-                        }
-
-                        // Update or create animation component if a unit is on this spot
+                        // update or set animation component based on unit data
                         if (unit.has(entity)) {
-                            entityAnimation = animation.has(entity) ? animation.get(entity) : null;
-                            if (entityAnimation) {
+                            console.log(entity, unit.get(entity))
+                            if (animation.has(entity)) {
+                                entityAnimation = animation.get(entity);
                                 entityAnimation.update(deltaTime);
                             } else {
                                 const unitData = unit.get(entity);
@@ -393,84 +372,16 @@ export default class DisplaySystem extends System {
                                 entityAnimation = new Animation(`${path}`, frames, speed);
                                 animation.add(entity, entityAnimation);
                             }
-                        }
+                        } else animation.remove(entity);
                     }
 
-                    if (dragEntity) {
-                        scale = { x: -1, y: 1 };
-                        if (clickedUnit) {
-                            // Set drag entity position based on mouse cursor
-                            if (position && 'x' in position && 'y' in position) {
-                                entityPosition = {
-                                    x: position.x / this.#spriteSize,
-                                    y: position.y / this.#spriteSize,
-                                    z: 5
-                                }
-                                entitySpeed = 0;
-                            }
-
-                            entityAnimation = animation.has(entity) ? animation.get(entity) : null;
-                            if (entityAnimation) {
-                                entityAnimation.update(deltaTime);
-                            } else {
-                                entityAnimation = animation.has(down.id) ? animation.get(down.id) : null;
-                                if (entityAnimation) {
-                                    animation.add(entity, entityAnimation);
-                                }
-                            }
-                        } else {
-                            transform.remove(entity);
-                            animation.remove(entity);
-                        }
-                    }
-
-                    if (select && clickedUnit) {
-                        if (over) {
-                            if ('id' in over && unitPool.playerUnits.includes(over?.id)) {
-                                const unitIndex = over.id - unitPool.playerUnits[0];
-                                entityPosition = {
-                                    x: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
-                                        this.#playerStartX - unitIndex + 0.5:
-                                        this.#sideBoardX + (unitIndex - unitPool.boardSize) + 0.5,
-                                    y: unitIndex < unitPool.playerUnits[0] + unitPool.boardSize ?
-                                        this.#boardY + 1 : this.#sideBoardY + 1,
-                                    z: 3
-                                }
-
-                                entityAnimation = animation.has(entity) ? animation.get(entity) : null;
-                                if (entityAnimation) {
-                                    entityAnimation.update(deltaTime);
-                                } else {
-                                    entityAnimation = new Animation(`tilecursor`, 2, 240);
-                                    animation.add(entity, entityAnimation);
-                                }
-                            }
-                        }
-                    }
-
-
-                    // Update or create the transform component based on the new position;
-                    if (entityPosition) {
-                        if (transform.has(entity)) {
-                            entityTransform = transform.get(entity);
-                            entityTransform.setTarget(entityPosition.x, entityPosition.y);
-                            entityTransform.update(deltaTime);
-                        } else {
-                            entityTransform = new Transform(entityPosition.x, entityPosition.y, entityPosition.z, entitySpeed, scale.x, scale.y);
-                            transform.add(entity, entityTransform);
-                        }
-                    } else {
-                        transform.remove(entity);
-                    }
-                    
                     // Create dispatch data for this entity
                     if (entityTransform) {
                         const { x, y, z } = entityTransform.position;
-                        const { scale, anchor } = entityTransform;
+                        const { anchor, scale } = entityTransform;
                         let entitySprite;
                         if (entityAnimation) {
-                            const { sprite } = entityAnimation;
-                            entitySprite = sprite;
+                            entitySprite = entityAnimation.sprite;
                         } else entitySprite = `empty`;
 
                         entityDispatchData.push({
@@ -479,10 +390,9 @@ export default class DisplaySystem extends System {
                             y: y,
                             z: z,
                             sprite: entitySprite,
-                            alpha: clickedUnit && entity === down?.id ? 0.5 : 1,
+                            alpha: 1,
                             scale: scale,
-                            anchor: anchor,
-                            interactable: interactable
+                            anchor: anchor
                         })
                     }
                 })

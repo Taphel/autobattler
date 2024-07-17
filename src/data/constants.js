@@ -18,7 +18,7 @@ const constants = {
     unitCount: 20,
     boardSize: 6,
     sideBoardSize: 8,
-    startPlayerUnits: 10,
+    startPlayerUnits: 7,
 }
 
 export default constants;

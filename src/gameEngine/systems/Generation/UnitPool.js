@@ -9,7 +9,6 @@ export default class UnitPool {
     #unitData;
     #shopUnits = [];
     #playerUnits = [];
-    #playerBoard = [];
     #encounterUnits = [];
     constructor(entities, components, unitData, unitCount, boardSize, sideBoardSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY, startPlayerUnits) {
         this.#unitData = unitData;
@@ -35,26 +34,10 @@ export default class UnitPool {
                 y: i < boardSize ? boardY : sideBoardY,
                 z: 4
             }
-            const scale = { x: -1, y: 1 }
+            const scale = { x: -1, y: 1 };
+            const speed = 0.015;
 
-            tile.add(playerUnitId, new Tile(position.x, position.y, scale.x, scale.y));
-        }
-
-        // Allocate player battle units entity IDs
-        for (let i = 0; i < boardSize; i++) {
-            const playerBoardUnitId = entities.length;
-            this.#playerBoard.push(playerBoardUnitId);
-            entities.push(playerBoardUnitId);
-
-            // Determine default position and scale for tile component
-            const position = {
-                x: i < boardSize ? playerStartX - i : sideBoardX + (i - boardSize),
-                y: i < boardSize ? boardY : sideBoardY,
-                z: 4
-            }
-            const scale = { x: -1, y: 1 }
-
-            tile.add(playerBoardUnitId, new Tile(position.x, position.y, scale.x, scale.y));
+            tile.add(playerUnitId, new Tile(position.x, position.y, position.z, scale.x, scale.y, speed));
         }
 
         // Initialize player starter units
@@ -77,8 +60,9 @@ export default class UnitPool {
                 z: 4
             }
             const scale = { x: 1, y: 1 }
+            const speed = 0.015;
 
-            tile.add(encounterUnitId, new Tile(position.x, position.y, scale.x, scale.y));
+            tile.add(encounterUnitId, new Tile(position.x, position.y, position.z, scale.x, scale.y, speed));
         }
 
         for (let i = 0; i < 3; i++) {
@@ -93,10 +77,6 @@ export default class UnitPool {
 
     get playerUnits() {
         return this.#playerUnits;
-    }
-
-    get playerBoard() {
-        return this.#playerBoard;
     }
 
     get encounterUnits() {

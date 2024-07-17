@@ -18,7 +18,7 @@ export default class GenerationSystem extends System {
         return new DungeonLevel(floors, floorWidth, pathCount, tier);
     }
     
-    generateUnitPool(entities, components, unitData, unitCount, boardSize, sideBoardSize, startPlayerUnits) {
+    generateUnitPool(entities, components, unitData, unitCount, boardSize, sideBoardSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY, startPlayerUnits) {
         return new UnitPool(entities, components, unitData, unitCount, boardSize, sideBoardSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY, startPlayerUnits);
     }
 }

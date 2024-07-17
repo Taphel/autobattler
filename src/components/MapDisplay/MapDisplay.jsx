@@ -81,7 +81,8 @@ export default function MapDisplay({ gameEngine }) {
                                 x={cursor.x * spriteSize} 
                                 y={cursor.y * spriteSize} 
                                 zIndex={cursor.z} 
-                                scale={spriteSize / 32} 
+                                scale={spriteSize / 32}
+                                anchor={cursor.anchor}
                                 alpha={cursor.alpha} 
                             />
                         )

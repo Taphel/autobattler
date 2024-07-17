@@ -12,8 +12,8 @@ export default class Transform extends Component {
 
     constructor(x = 0, y = 0, z = 0, speed = 0, scaleX = 1, scaleY = 1) {
         super();
-        this.#x = x;
-        this.#y = y;
+        this.#x = x + this.#anchor.x;
+        this.#y = y + this.#anchor.y;
         this.#z = z;
         this.#speed = speed;
         this.#scale = { x: scaleX, y: scaleY };
@@ -36,7 +36,7 @@ export default class Transform extends Component {
     }
 
     setTarget(x, y) {
-        this.#target = {x: x, y: y};
+        this.#target = {x: x + this.#anchor.x, y: y + this.#anchor.y};
     }
     
     update(deltaTime) {

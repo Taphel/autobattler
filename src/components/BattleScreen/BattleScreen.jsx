@@ -27,7 +27,6 @@ export default function BattleScreen({ gameEngine }) {
         loadTextures().then(value => setBattleTextures(value));
     }, [])
 
-    console.log(entities.find(entity => entity.id === 29));
     return (
         <Stage
             x={0}
@@ -61,7 +60,7 @@ export default function BattleScreen({ gameEngine }) {
                         return (
                             <Sprite
                                 key={entity.id}
-                                eventMode={entity.interactable ? "static" : "none"}
+                                eventMode={"static"}
                                 pointerdown={() => { input.pointerDown({ id: entity.id }) }}
                                 pointerover={() => {console.log(entity.x * spriteSize, entity.y * spriteSize, spriteSize) ; input.pointerOver({ id: entity.id })}}
                                 pointerout={input.pointerOut}
