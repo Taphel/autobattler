@@ -61,8 +61,8 @@ export default function BattleScreen({ gameEngine }) {
                             <Sprite
                                 key={entity.id}
                                 eventMode={"static"}
-                                pointerdown={() => { input.pointerDown({ id: entity.id }) }}
-                                pointerover={() => {console.log(entity.x * spriteSize, entity.y * spriteSize, spriteSize) ; input.pointerOver({ id: entity.id })}}
+                                pointerdown={entity.interactable ? () => { input.pointerDown({ id: entity.id })} : undefined }
+                                pointerover={entity.interactable ? () => {console.log(entity.x * spriteSize, entity.y * spriteSize, spriteSize) ; input.pointerOver({ id: entity.id })} : undefined }
                                 pointerout={input.pointerOut}
                                 texture={battleTextures[entity.sprite]}
                                 x={entity.x * spriteSize}

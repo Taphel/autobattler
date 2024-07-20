@@ -10,6 +10,7 @@ import System from "../System.js";
 // Component
 import Transform from "../components/Transform.js"
 import Animation from "../components/Animation.js";
+import MouseOver from "../components/MouseOver.js";
 
 // enum
 import { GameState, RoomType, UnitFaction } from "../../data/enums.js";
@@ -241,7 +242,7 @@ export default class DisplaySystem extends System {
     }
 
     update(gameState, dungeonLevel, entities, components, unitPool, pointerInput, deltaTime) {
-        const { tile, transform, animation, unit } = components;
+        const { tile, transform, animation, unit, mouseOver } = components;
         const cursorDispatchData = [];
         let newState = gameState;
         switch (gameState) {
@@ -345,6 +346,11 @@ export default class DisplaySystem extends System {
                 store.dispatch(setGameState(newState));
                 return newState;
             case GameState.idle:
+                const { over } = pointerInput;
+                if (!mouseOver.has(this.#selectId)) {
+                    mouseOver.add(this.#selectId, new MouseOver());
+                }
+
                 const entityDispatchData = [];
                 entities.forEach(entity => {
                     let entityTransform, entityAnimation;
@@ -362,7 +368,6 @@ export default class DisplaySystem extends System {
 
                         // update or set animation component based on unit data
                         if (unit.has(entity)) {
-                            console.log(entity, unit.get(entity))
                             if (animation.has(entity)) {
                                 entityAnimation = animation.get(entity);
                                 entityAnimation.update(deltaTime);
@@ -373,6 +378,37 @@ export default class DisplaySystem extends System {
                                 animation.add(entity, entityAnimation);
                             }
                         } else animation.remove(entity);
+                    }
+
+                    if (mouseOver.has(entity)) {
+                        // Set the target Id to the over input id
+                        const entityMouseOver = mouseOver.get(entity);
+                        if (over && 'id' in over) {
+                            console.log(over);
+                            entityMouseOver.setTargetId(over.id)
+                            const { position } = tile.get(over.id).value;
+
+                            if (transform.has(entity)) {
+                                entityTransform = transform.get(entity);
+                                entityTransform.setTarget(position.x, position.y + 0.5);
+                                entityTransform.update(deltaTime);
+                            } else {
+                                entityTransform = new Transform(position.x, position.y + 0.5, 3, 0, 1, 1)
+                                transform.add(entity, entityTransform);
+                            }
+
+                            if (animation.has(entity)) {
+                                entityAnimation = animation.get(entity);
+                                entityAnimation.update(deltaTime); 
+                            } else {
+                                entityAnimation = new Animation('tilecursor', 2, 240);
+                                animation.add(entity, entityAnimation);
+                            }
+                        } else {
+                            entityMouseOver.setTargetId(null);
+                            transform.remove(entity);
+                            animation.remove(entity);
+                        }
                     }
 
                     // Create dispatch data for this entity
@@ -392,7 +428,8 @@ export default class DisplaySystem extends System {
                             sprite: entitySprite,
                             alpha: 1,
                             scale: scale,
-                            anchor: anchor
+                            anchor: anchor,
+                            interactable: unitPool.playerUnits.includes(entity) || unitPool.encounterUnits.includes(entity)
                         })
                     }
                 })
