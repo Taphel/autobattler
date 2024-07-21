@@ -20,7 +20,8 @@ class GameEngine {
         tile: new ComponentSet(100),
         transform: new ComponentSet(100),
         unit: new ComponentSet(100),
-        mouseOver: new ComponentSet(100),
+        mouseOver: new ComponentSet(1),
+        dragEntity: new ComponentSet(1)
     };
     #systems = {
         generation: new GenerationSystem(),

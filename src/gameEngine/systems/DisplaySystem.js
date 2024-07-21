@@ -11,6 +11,7 @@ import System from "../System.js";
 import Transform from "../components/Transform.js"
 import Animation from "../components/Animation.js";
 import MouseOver from "../components/MouseOver.js";
+import DragEntity from "../components/DragEntity.js";
 
 // enum
 import { GameState, RoomType, UnitFaction } from "../../data/enums.js";
@@ -242,7 +243,7 @@ export default class DisplaySystem extends System {
     }
 
     update(gameState, dungeonLevel, entities, components, unitPool, pointerInput, deltaTime) {
-        const { tile, transform, animation, unit, mouseOver } = components;
+        const { tile, transform, animation, unit, mouseOver, dragEntity } = components;
         const cursorDispatchData = [];
         let newState = gameState;
         switch (gameState) {
@@ -346,9 +347,12 @@ export default class DisplaySystem extends System {
                 store.dispatch(setGameState(newState));
                 return newState;
             case GameState.idle:
-                const { over } = pointerInput;
+                const { down, over, pointerPosition } = pointerInput;
                 if (!mouseOver.has(this.#selectId)) {
                     mouseOver.add(this.#selectId, new MouseOver());
+                }
+                if (!dragEntity.has(this.#dragEntityId)) {
+                    dragEntity.add(this.#dragEntityId, new DragEntity());
                 }
 
                 const entityDispatchData = [];
@@ -384,7 +388,6 @@ export default class DisplaySystem extends System {
                         // Set the target Id to the over input id
                         const entityMouseOver = mouseOver.get(entity);
                         if (over && 'id' in over) {
-                            console.log(over);
                             entityMouseOver.setTargetId(over.id)
                             const { position } = tile.get(over.id).value;
 
@@ -399,7 +402,7 @@ export default class DisplaySystem extends System {
 
                             if (animation.has(entity)) {
                                 entityAnimation = animation.get(entity);
-                                entityAnimation.update(deltaTime); 
+                                entityAnimation.update(deltaTime);
                             } else {
                                 entityAnimation = new Animation('tilecursor', 2, 240);
                                 animation.add(entity, entityAnimation);
@@ -408,6 +411,31 @@ export default class DisplaySystem extends System {
                             entityMouseOver.setTargetId(null);
                             transform.remove(entity);
                             animation.remove(entity);
+                        }
+                    }
+
+                    if (dragEntity.has(entity)) {
+                        const dragEntityComponent = dragEntity.get(entity);
+                        if (down && 'id' in down && pointerPosition && 'x' in pointerPosition && 'y' in pointerPosition) {
+                            dragEntityComponent.setTargetId(down.id);
+                            if (unitPool.playerUnits.includes(down.id)) {
+                                const dragEntityPosition = { x: pointerPosition.x / this.#spriteSize, y: pointerPosition.y / this.#spriteSize }
+                                if (transform.has(entity)) {
+                                    entityTransform = transform.get(entity);
+                                    entityTransform.setTarget(dragEntityPosition.x, dragEntityPosition.y);
+                                    entityTransform.update(deltaTime);
+                                } else {
+                                    entityTransform = new Transform(dragEntityPosition.x, dragEntityPosition.y, 5, 0, -1, 1)
+                                    transform.add(entity, entityTransform);
+                                }
+
+                                if (animation.has(down.id)) {
+                                    entityAnimation = animation.get(down.id);
+                                }
+                            }
+                        } else {
+                            dragEntityComponent.setTargetId(null);
+                            transform.remove(entity);
                         }
                     }
 
@@ -426,14 +454,13 @@ export default class DisplaySystem extends System {
                             y: y,
                             z: z,
                             sprite: entitySprite,
-                            alpha: 1,
+                            alpha: down && entity === down.id && unitPool.playerUnits.includes(entity) ? 0.5 : 1,
                             scale: scale,
                             anchor: anchor,
-                            interactable: unitPool.playerUnits.includes(entity) || unitPool.encounterUnits.includes(entity)
+                            interactable: tile.has(entity)
                         })
                     }
                 })
-
                 store.dispatch(setEntitySprites(entityDispatchData));
                 return GameState.idle;
         }

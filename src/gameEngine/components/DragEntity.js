@@ -2,21 +2,17 @@
 import Component from "../Component.js";
 
 export default class DragEntity extends Component {
-    #position;
-    #scale;
-    #speed;
-    #frames;
+    #targetId;
 
-    constructor(speed) {
+    constructor() {
         super();
-        this.#speed = speed;
     }
 
-    get value() {
-        return {
-            position: this.#position,
-            scale: this.#scale,
-            speed: this.#speed
-        }
+    setTargetId(id) {
+        this.#targetId = id;
+    }
+
+    get targetId() {
+        return this.#targetId;
     }
 }

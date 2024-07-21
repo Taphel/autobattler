@@ -18,6 +18,7 @@ function App({ gameEngine }) {
   }
   
   function handleResize(event) {
+    console.log(event);
     display.resize(event.currentTarget.innerWidth, event.currentTarget.innerHeight)
   }
 

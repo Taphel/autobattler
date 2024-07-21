@@ -20,7 +20,6 @@ export default class InputSystem extends System {
     }
 
     pointerOver(target) {
-        console.log(target);
         this.#pointerOverTarget = target;
         console.log("POINTEROVER:", this.#pointerOverTarget)
     }
