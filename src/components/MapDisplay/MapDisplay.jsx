@@ -25,6 +25,7 @@ export default function MapDisplay({ gameEngine }) {
             const assets = await Assets.loadBundle(mapBundle.name);
             return assets;
         }
+
         loadTextures().then(value => setMapTextures(value));
     }, [])
 

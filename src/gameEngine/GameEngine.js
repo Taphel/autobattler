@@ -21,7 +21,7 @@ class GameEngine {
         transform: new ComponentSet(100),
         unit: new ComponentSet(100),
         mouseOver: new ComponentSet(1),
-        dragEntity: new ComponentSet(1)
+        mouseDrag: new ComponentSet(1)
     };
     #systems = {
         generation: new GenerationSystem(),
@@ -88,7 +88,7 @@ class GameEngine {
         if (pointerInput.up) input.clearPointerInputs();
 
         // Update display
-        this.#gameState = display.update(this.#gameState, this.#dungeonLevel, this.#entities, this.#components, this.#unitPool, pointerInput, deltaTime);
+        this.#gameState = display.update(this.#gameState, this.#dungeonLevel, this.#entities, this.#components, deltaTime);
     }
 }
 

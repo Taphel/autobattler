@@ -23,8 +23,8 @@ function App({ gameEngine }) {
   }
 
   useEffect(() => {
+    display.resize(window.innerWidth, window.innerHeight);
     document.addEventListener('pointerup', handlePointerUp);
-    window.addEventListener('load', handleResize);
     window.addEventListener('resize', handleResize);
   }, [])
 
