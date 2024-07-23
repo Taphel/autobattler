@@ -418,10 +418,10 @@ export default class DisplaySystem extends System {
                             const { x, y } = entityMouseDrag.position;
                             if (transform.has(entity)) {
                                 entityTransform = transform.get(entity);
-                                entityTransform.setTarget(x, y);
+                                entityTransform.setTarget(x / this.#spriteSize, y / this.#spriteSize);
                                 entityTransform.update(deltaTime);
                             } else {
-                                entityTransform = new Transform(x, y, 5, 0, -1, 1)
+                                entityTransform = new Transform(x / this.#spriteSize, y / this.#spriteSize, 5, 0, -1, 1)
                                 transform.add(entity, entityTransform);
                             }
                             
