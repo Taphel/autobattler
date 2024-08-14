@@ -36,7 +36,6 @@ export default class InputSystem extends System {
     }
 
     pointerMove(target) {
-        console.log(target.x / 32, target.y / 32);
         this.#pointerPosition = target;
     }
 

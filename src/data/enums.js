@@ -1,6 +1,6 @@
 class Enum {
     constructor() {
-        throw new Error(`${this.constructor.name} is a static Enum class, it is not meant to be instantiated.`);
+        throw new Error(`${this.constructor.name} is a static class, it is not meant to be instantiated.`);
     }
 }
 
@@ -21,6 +21,22 @@ export class RoomType extends Enum {
     static empty = "ROOMTYPE_EMPTY";
 }
 
+export class SpriteLayer extends Enum {
+    // Map screen
+    static mapPath = 1;
+    static mapNode = 2;
+    static mapCursor = 3;
+
+    // Battle screen
+    static tile = 1;
+    static tileCursor = 2;
+    static unit = 3;
+    static effect = 4;
+    static overlay = 5;
+    static mouseDrag = 6;
+    static ui = 7;
+}
+
 export class AbilityTarget {
     // faction target
     static ally = "TARGETFACTION_ALLY";
@@ -38,14 +54,6 @@ export class AbilityTarget {
     static lowestAtk = "TARGETSCOPE_LOWATK";
     static random = "TARGETSCOPE_RANDOM";
     static all = "TARGETSCOPE_ALL";
-}
-
-export class AbilityCost extends Enum {
-    static mana = "ABILITYCOST_MANA";
-    static soul = "ABILITYCOST_SOUL";
-    static blood = "ABILITYCOST_BLOOD";
-    static rage = "ABILITYCOST_RAGE";
-    static death = "ABILITYCOST_DEATH";
 }
 
 export class AbilityEffect extends Enum {

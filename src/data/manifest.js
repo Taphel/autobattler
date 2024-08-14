@@ -190,6 +190,18 @@ const manifest = {
                     name: "orc1",
                     src: "/sprites/battle/units/orc1.png"
                 },
+                {
+                    name: "attack",
+                    src: "/sprites/battle/ui/attack.png"
+                },
+                {
+                    name: "health",
+                    src: "/sprites/battle/ui/health.png"
+                },
+                {
+                    name: "mana",
+                    src: "/sprites/battle/ui/mana.png"
+                }
             ]
         }
     ]

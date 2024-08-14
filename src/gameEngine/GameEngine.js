@@ -19,7 +19,9 @@ class GameEngine {
         animation: new ComponentSet(100),
         tile: new ComponentSet(100),
         transform: new ComponentSet(100),
-        unit: new ComponentSet(100),
+        unitInfo: new ComponentSet(100),
+        unitStats: new ComponentSet(100),
+        unitSkill: new ComponentSet(100),
         mouseOver: new ComponentSet(1),
         mouseDrag: new ComponentSet(1)
     };
@@ -39,7 +41,7 @@ class GameEngine {
 
     constructor() {
         // Import systems
-        const { generation, display } = this.#systems;
+        const { generation, display, ui } = this.#systems;
         // Import level generation constants then generate the dungeon
         const { floors, floorWidth, pathCount, unitCount, boardSize, sideBoardSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY, startPlayerUnits } = constants;
         this.#dungeonLevel = generation.generateLevel(floors, floorWidth, pathCount, this.#dungeonTier);
@@ -48,6 +50,7 @@ class GameEngine {
         // Import display constants then initialize map display
         const { screenWidth, screenHeight, xMapOffset, yMapOffset, spriteSize } = constants;
         display.initializeDisplay(this.#dungeonLevel, this.#entities, screenWidth, screenHeight, xMapOffset, yMapOffset, spriteSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY);
+        ui.init(this.#entities, this.#components, boardSize)
 
         setInterval(() => {
             this.#updateLoop()
@@ -63,11 +66,11 @@ class GameEngine {
     }
 
     #clearEntities() {
-        const { animation, transform, unit } = this.#components;
+        const { animation, transform, unitInfo } = this.#components;
         this.#entities.forEach(entity => {
             animation.remove(entity);
             transform.remove(entity);
-            unit.remove(entity);
+            unitInfo.remove(entity);
         })
 
         this.#entities = [];
@@ -78,7 +81,7 @@ class GameEngine {
         const currentTickTime = performance.now();
         const deltaTime = (currentTickTime - this.#previousTickTime);
         this.#previousTickTime = currentTickTime;
-        const { game, display, input } = this.#systems;
+        const { game, display, input, ui } = this.#systems;
     
         // Register inputs
         const pointerInput = input.update(this.#gameState);
@@ -89,6 +92,9 @@ class GameEngine {
 
         // Update display
         this.#gameState = display.update(this.#gameState, this.#dungeonLevel, this.#entities, this.#components, deltaTime);
+        const { spriteSize } = display;
+
+        ui.update(this.#gameState, this.#entities, this.#components, spriteSize, deltaTime);
     }
 }
 

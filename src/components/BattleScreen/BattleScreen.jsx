@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
 import manifest from "../../data/manifest.js";
 
 export default function BattleScreen({ gameEngine }) {
-    const { tiles, entities, screenWidth, screenHeight, spriteSize } = useSelector((state) => state.battle);
+    const { tiles, entities, uiElements, screenWidth, screenHeight, spriteSize } = useSelector((state) => state.battle);
     const [battleTextures, setBattleTextures] = useState(null);
     const { input } = gameEngine;
 
@@ -50,7 +50,7 @@ export default function BattleScreen({ gameEngine }) {
                                 texture={battleTextures[tile.sprite]}
                                 x={tile.x * spriteSize}
                                 y={tile.y * spriteSize}
-                                zIndex={2}
+                                zIndex={tile.z}
                                 scale={spriteSize / 32}
                                 alpha={tile.alpha}
                             />
@@ -73,6 +73,20 @@ export default function BattleScreen({ gameEngine }) {
                                 anchor={entity.anchor}
                             />
                         )
+                    })}
+                    {uiElements.map((element) => {
+                        return (<Sprite
+                            key={element.id}
+                            eventMode={"none"}
+                            texture={battleTextures[element.sprite]}
+                            x={element.x * spriteSize}
+                            y={element.y * spriteSize}
+                            zIndex={element.z}
+                            scale={{x: element.scale.x * (spriteSize / 32), y: spriteSize / 32}}
+                            alpha={element.alpha}
+                            anchor={element.anchor}
+                        />)
+                        
                     })}
                 </Container>
             }

@@ -1,9 +1,14 @@
 // Class imports
-import Unit from "../../components/Unit.js";
+import UnitInfo from "../../components/UnitInfo.js";
+import UnitStats from "../../components/UnitStats.js";
+import UnitSkill from "../../components/UnitSkill.js";
 import Tile from "../../components/Tile.js";
 
 // Libraries import
 import shuffleArray from "../../../libraries/shuffleArray.js";
+
+// Enums import
+import { SpriteLayer } from "../../../data/enums.js";
 
 export default class UnitPool {
     #unitData;
@@ -12,16 +17,16 @@ export default class UnitPool {
     #encounterUnits = [];
     constructor(entities, components, unitData, unitCount, boardSize, sideBoardSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY, startPlayerUnits) {
         this.#unitData = unitData;
-        // Generate unit pool for player rewards;
+        // Generate unitInfo pool for player rewards;
         unitData.forEach(unit => {
             for (let i = 0; i < unitCount; i++) {
-                this.#shopUnits.push(new Unit(unit, 1));
+                this.#shopUnits.push(unit);
             }
         })
 
         this.#shopUnits = shuffleArray(this.#shopUnits);
 
-        // Allocate player unit entity IDs
+        // Allocate player unitInfo entity IDs
         const { tile } = components;
         for (let i = 0; i < boardSize + sideBoardSize; i++) {
             const playerUnitId = entities.length;
@@ -32,7 +37,7 @@ export default class UnitPool {
             const position = {
                 x: i < boardSize ? playerStartX - i : sideBoardX + (i - boardSize),
                 y: i < boardSize ? boardY : sideBoardY,
-                z: 4
+                z: SpriteLayer.unit
             }
             const scale = { x: -1, y: 1 };
             const speed = 0.015;
@@ -41,13 +46,21 @@ export default class UnitPool {
         }
 
         // Initialize player starter units
-        const { unit } = components;
+        const { unitInfo, unitStats, unitSkill } = components;
         for (let i = 0; i < startPlayerUnits; i++) {
-            const playerUnit = this.#shopUnits.shift();
-            unit.add(this.#playerUnits[i], playerUnit);
+            const unitData = this.#shopUnits.shift();
+            const unitComponents = {
+                info: new UnitInfo(unitData),
+                stats: new UnitStats(unitData),
+                skill: new UnitSkill(unitData)
+            }
+
+            unitInfo.add(this.#playerUnits[i], unitComponents.info);
+            unitStats.add(this.#playerUnits[i], unitComponents.stats);
+            unitSkill.add(this.#playerUnits[i], unitComponents.skill);
         }
 
-        // Allocate enemy unit entity IDs
+        // Allocate enemy unitInfo entity IDs
         for (let i = 0; i < boardSize; i++) {
             const encounterUnitId = entities.length;
             this.#encounterUnits.push(encounterUnitId);
@@ -66,8 +79,16 @@ export default class UnitPool {
         }
 
         for (let i = 0; i < 3; i++) {
-            const enemyUnit = this.#shopUnits.shift();
-            unit.add(this.#encounterUnits[i], enemyUnit);
+            const unitData = this.#shopUnits.shift();
+            const unitComponents = {
+                info: new UnitInfo(unitData),
+                stats: new UnitStats(unitData),
+                skill: new UnitSkill(unitData)
+            }
+            
+            unitInfo.add(this.#encounterUnits[i], unitComponents.info);
+            unitStats.add(this.#encounterUnits[i], unitComponents.stats);
+            unitSkill.add(this.#encounterUnits[i], unitComponents.skill);
         }
     }
 

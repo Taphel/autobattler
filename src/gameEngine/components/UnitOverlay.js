@@ -1,7 +1,7 @@
 // Class imports
 import Component from "../Component.js";
 
-export default class MouseOver extends Component {
+export default class UnitOverlay extends Component {
     #targetId = null;
 
     constructor() {

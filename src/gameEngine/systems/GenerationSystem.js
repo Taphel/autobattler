@@ -4,7 +4,7 @@ import DungeonLevel from "./Generation/DungeonLevel.js";
 import UnitPool from "./Generation/UnitPool.js";
 
 /// Components
-import Unit from "../components/Unit.js";
+import UnitInfo from "../components/UnitInfo.js";
 
 // libraries
 import shuffleArray from "../../libraries/shuffleArray.js";

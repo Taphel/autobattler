@@ -5,16 +5,16 @@ import { createSlice } from '@reduxjs/toolkit'
 export const uiSlice = createSlice({
     name: 'ui',
     initialState: {
-        selectedEntity: null
+        unitOverlays: []
     },
     reducers: {
-        setSelectedEntity: (state, action) => {
-            state.selectedEntity = action.payload;
+        updateUnitOverlays (state, action) {
+            this.state = action.payload;
         }
     }
 })
 
 
 // // Action creators are generated for each case reducer function
-export const { setSelectedEntity } = uiSlice.actions
+export const { updateUnitOverlays } = uiSlice.actions
 export default uiSlice.reducer

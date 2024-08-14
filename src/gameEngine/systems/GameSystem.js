@@ -4,8 +4,7 @@ import System from "../System.js";
 // Components import
 
 // data import
-import { GameState, UnitFaction, AbilityCost, AbilityTarget, AbilityEffect } from "../../data/enums.js";
-import Unit from "../components/Unit.js";
+import { GameState } from "../../data/enums.js";
 
 export default class GameSystem extends System {
 
@@ -33,7 +32,7 @@ export default class GameSystem extends System {
             case GameState.roomStart:
                 return GameState.roomStart;
             case GameState.idle:
-                const { animation, transform, unit, mouseDrag, mouseOver } = components;
+                const { animation, transform, unitInfo, unitStats, unitSkill, mouseDrag, mouseOver } = components;
                 let mouseOverId, mouseDragId
                 entities.forEach(entity => {
                     if (mouseOver.has(entity)) {
@@ -49,7 +48,7 @@ export default class GameSystem extends System {
                     if (mouseDrag.has(entity)) {
                         const entityMouseDrag = mouseDrag.get(entity);
                         if (pointerPosition) entityMouseDrag.setMousePosition(pointerPosition?.x, pointerPosition?.y);
-                        if (down && 'id' in down && unitPool.playerUnits.includes(down.id) && unit.has(down.id)) {
+                        if (down && 'id' in down && unitPool.playerUnits.includes(down.id) && unitInfo.has(down.id)) {
                             mouseDragId = down.id;
                             entityMouseDrag.setTargetId(down.id);
                         } else {
@@ -63,13 +62,18 @@ export default class GameSystem extends System {
                     const startComponents = {
                         animation: animation.has(mouseDragId) ? animation.get(mouseDragId) : null,
                         transform: transform.has(mouseDragId) ? transform.get(mouseDragId) : null,
-                        unit: unit.has(mouseDragId) ? unit.get(mouseDragId) : null,
+                        unitInfo: unitInfo.has(mouseDragId) ? unitInfo.get(mouseDragId) : null,
+                        unitStats: unitStats.has(mouseDragId) ? unitStats.get(mouseDragId) : null,
+                        unitSkill: unitSkill.has(mouseDragId) ? unitSkill.get(mouseDragId) : null,
                     }
 
                     const endComponents = {
                         animation: animation.has(mouseOverId) ? animation.get(mouseOverId) : null,
                         transform: transform.has(mouseOverId) ? transform.get(mouseOverId) : null,
-                        unit: unit.has(mouseOverId) ? unit.get(mouseOverId) : null,
+                        unitInfo: unitInfo.has(mouseOverId) ? unitInfo.get(mouseOverId) : null,
+                        unitStats: unitStats.has(mouseOverId) ? unitStats.get(mouseOverId) : null,
+                        unitSkill: unitSkill.has(mouseOverId) ? unitSkill.get(mouseOverId) : null,
+                        
                     }
 
                     // Cleanup component set references
@@ -77,17 +81,24 @@ export default class GameSystem extends System {
                     animation.remove(mouseOverId)
                     transform.remove(mouseDragId)
                     transform.remove(mouseOverId)
-                    unit.remove(mouseDragId)
-                    unit.remove(mouseOverId)
+                    unitInfo.remove(mouseDragId)
+                    unitInfo.remove(mouseOverId)
+                    unitStats.remove(mouseDragId)
+                    unitStats.remove(mouseOverId)
+                    unitSkill.remove(mouseDragId)
+                    unitSkill.remove(mouseOverId)
 
                     // swap components
                     if (startComponents.animation) animation.add(mouseOverId, startComponents.animation);
                     if (endComponents.animation) animation.add(mouseDragId, endComponents.animation);
                     if (startComponents.transform) transform.add(mouseOverId, startComponents.transform);
                     if (endComponents.transform) transform.add(mouseDragId, endComponents.transform);
-                    if (startComponents.unit) unit.add(mouseOverId, startComponents.unit);
-                    if (endComponents.unit) unit.add(mouseDragId, endComponents.unit);
-
+                    if (startComponents.unitInfo) unitInfo.add(mouseOverId, startComponents.unitInfo);
+                    if (endComponents.unitInfo) unitInfo.add(mouseDragId, endComponents.unitInfo);
+                    if (startComponents.unitStats) unitStats.add(mouseOverId, startComponents.unitStats);
+                    if (endComponents.unitStats) unitStats.add(mouseDragId, endComponents.unitStats);
+                    if (startComponents.unitSkill) unitSkill.add(mouseOverId, startComponents.unitSkill);
+                    if (endComponents.unitSkill) unitSkill.add(mouseDragId, endComponents.unitSkill);
                 }
                 return GameState.idle;
         }

@@ -7,6 +7,7 @@ export const battleSlice = createSlice({
     initialState: {
         tiles: [],
         entities:[],
+        uiElements: [],
         screenWidth: 0,
         screenHeight: 0,
         spriteSize: 0,
@@ -24,11 +25,14 @@ export const battleSlice = createSlice({
         },
         updateTileSize: (state, action) => {
             state.spriteSize = action.payload;
-        }
+        },
+        setUiSprites: (state, action) => {
+            state.uiElements = action.payload
+        },
     }
 })
 
 
 // // Action creators are generated for each case reducer function
-export const { initializeBattleTiles, setEntitySprites, updateTileSize } = battleSlice.actions
+export const { initializeBattleTiles, setEntitySprites, updateTileSize, setUiSprites } = battleSlice.actions
 export default battleSlice.reducer

@@ -54,7 +54,7 @@ export default function MapDisplay({ gameEngine }) {
                                 texture={mapTextures[node.sprite]}
                                 x={node.x * spriteSize}
                                 y={node.y * spriteSize}
-                                zIndex={2}
+                                zIndex={node.z}
                                 scale={spriteSize / 32}
                                 alpha={node.alpha} 
                             />
@@ -67,7 +67,7 @@ export default function MapDisplay({ gameEngine }) {
                                 texture={mapTextures[path.sprite]}
                                 x={path.x * spriteSize} 
                                 y={path.y * spriteSize} 
-                                zIndex={1} 
+                                zIndex={path.z} 
                                 scale={spriteSize / 32} 
                                 alpha={path.alpha} 
                             />
