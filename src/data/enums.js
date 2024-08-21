@@ -33,8 +33,8 @@ export class SpriteLayer extends Enum {
     static unit = 3;
     static effect = 4;
     static overlay = 5;
-    static mouseDrag = 6;
-    static ui = 7;
+    static overlayTop = 6;
+    static mouseDrag = 7;
 }
 
 export class AbilityTarget {

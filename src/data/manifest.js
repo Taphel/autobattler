@@ -201,6 +201,10 @@ const manifest = {
                 {
                     name: "mana",
                     src: "/sprites/battle/ui/mana.png"
+                },
+                {
+                    name: "healthborder",
+                    src: "/sprites/battle/ui/healthborder.png"
                 }
             ]
         }
