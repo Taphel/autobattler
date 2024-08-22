@@ -8,6 +8,7 @@ export const battleSlice = createSlice({
         tiles: [],
         entities:[],
         uiElements: [],
+        unitOverlays: [],
         screenWidth: 0,
         screenHeight: 0,
         spriteSize: 0,
@@ -27,7 +28,8 @@ export const battleSlice = createSlice({
             state.spriteSize = action.payload;
         },
         setUiSprites: (state, action) => {
-            state.uiElements = action.payload
+            state.uiElements = action.payload.uiElements;
+            state.unitOverlays = action.payload.unitOverlays;
         },
     }
 })

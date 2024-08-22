@@ -2,15 +2,15 @@
 import Component from "../Component.js";
 
 export default class UnitSkill extends Component {
-    #cost;
+    #mana;
     constructor(unitData) {
         super();
         const { cost } = unitData
-        this.#cost = cost;
+        this.#mana = { current: Math.floor(Math.random() * cost), max: cost };
     }
 
-    get cost() {
-        return this.#cost;
+    get mana() {
+        return this.#mana;
     }
 
     update(actionResult) {

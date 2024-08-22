@@ -22,6 +22,7 @@ class GameEngine {
         unitInfo: new ComponentSet(100),
         unitStats: new ComponentSet(100),
         unitSkill: new ComponentSet(100),
+        unitOverlayUI: new ComponentSet(100),
         mouseOver: new ComponentSet(1),
         mouseDrag: new ComponentSet(1)
     };
@@ -50,7 +51,7 @@ class GameEngine {
         // Import display constants then initialize map display
         const { screenWidth, screenHeight, xMapOffset, yMapOffset, spriteSize } = constants;
         display.initializeDisplay(this.#dungeonLevel, this.#entities, screenWidth, screenHeight, xMapOffset, yMapOffset, spriteSize, playerStartX, enemyStartX, boardY, sideBoardX, sideBoardY);
-        ui.init(this.#entities, this.#components, boardSize)
+        ui.init(this.#entities, this.#components, this.#unitPool, boardSize);
 
         setInterval(() => {
             this.#updateLoop()

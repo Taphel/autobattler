@@ -14,7 +14,7 @@ export default class InputSystem extends System {
     constructor () {
         super();
         this.pointerOut = () => {
-            this.#pointerOverTarget = null;
+            if (!this.#pointerUp) this.#pointerOverTarget = null;
             console.log("POINTEROUT:", this.#pointerOverTarget)
         }
     }

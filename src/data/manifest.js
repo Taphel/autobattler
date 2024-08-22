@@ -1,4 +1,4 @@
-import { SCALE_MODES } from "pixi.js"
+import { SCALE_MODES, MIPMAP_MODES } from "pixi.js"
 
 const manifest = {
     bundles: [
@@ -143,10 +143,6 @@ const manifest = {
                     src: "/sprites/battle/tiles/sideborder.png"
                 },
                 {
-                    name: "border",
-                    src: "/sprites/battle/tiles/border.png"
-                },
-                {
                     name: "sidecornerborderleft",
                     src: "/sprites/battle/tiles/sidecornerborderleft.png"
                 },
@@ -203,8 +199,8 @@ const manifest = {
                     src: "/sprites/battle/ui/mana.png"
                 },
                 {
-                    name: "healthborder",
-                    src: "/sprites/battle/ui/healthborder.png"
+                    name: "statoverlay",
+                    src: "/sprites/battle/ui/statoverlay.png"
                 }
             ]
         }
@@ -213,7 +209,7 @@ const manifest = {
 
 manifest.bundles.forEach(bundle => {
     bundle.assets.forEach(asset => {
-        asset.data = {scaleMode: SCALE_MODES.NEAREST}
+        asset.data = {scaleMode: SCALE_MODES.NEAREST, mipmap: MIPMAP_MODES.OFF}
     })
 })
 

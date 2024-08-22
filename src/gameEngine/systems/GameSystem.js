@@ -36,12 +36,12 @@ export default class GameSystem extends System {
                 let mouseOverId, mouseDragId
                 entities.forEach(entity => {
                     if (mouseOver.has(entity)) {
-                        const entityMouseOver = mouseOver.get(entity);
+                        const mouseOverComponent = mouseOver.get(entity);
                         if (over && 'id' in over) {
                             mouseOverId = over.id;
-                            entityMouseOver.setTargetId(over.id);
+                            mouseOverComponent.setTargetId(over.id);
                         } else {
-                            entityMouseOver.setTargetId(null);
+                            mouseOverComponent.setTargetId(null);
                         }
                     }
 

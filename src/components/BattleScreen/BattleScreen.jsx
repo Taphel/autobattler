@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
 import manifest from "../../data/manifest.js";
 
 export default function BattleScreen({ gameEngine }) {
-    const { tiles, entities, uiElements, screenWidth, screenHeight, spriteSize } = useSelector((state) => state.battle);
+    const { tiles, entities, uiElements, unitOverlays, screenWidth, screenHeight, spriteSize } = useSelector((state) => state.battle);
     const [battleTextures, setBattleTextures] = useState(null);
     const { input } = gameEngine;
 
@@ -69,14 +69,14 @@ export default function BattleScreen({ gameEngine }) {
                             <Sprite
                                 key={entity.id}
                                 eventMode={entity.interactable ? "static" : "none"}
-                                pointerdown={() => { input.pointerDown({ id: entity.id })} }
-                                pointerover={() => { input.pointerOver({ id: entity.id })} }
-                                pointerleave={input.pointerOut}
+                                pointerdown={() => { input.pointerDown({ id: entity.id }) }}
+                                pointerover={() => { input.pointerOver({ id: entity.id }) }}
+                                pointerout={input.pointerOut}
                                 texture={battleTextures[entity.sprite]}
                                 x={entity.x * spriteSize}
                                 y={entity.y * spriteSize}
                                 zIndex={entity.z}
-                                scale={{x: entity.scale.x * (spriteSize / 32), y: spriteSize / 32}}
+                                scale={{ x: entity.scale.x * (spriteSize / 32), y: spriteSize / 32 }}
                                 alpha={entity.alpha}
                                 anchor={entity.anchor}
                             />
@@ -90,91 +90,63 @@ export default function BattleScreen({ gameEngine }) {
                             x={element.x * spriteSize}
                             y={element.y * spriteSize}
                             zIndex={element.z}
-                            scale={{x: element.scale.x * (spriteSize / 32), y: spriteSize / 32}}
+                            scale={{ x: element.scale.x * (spriteSize / 32), y: spriteSize / 32 }}
                             alpha={element.alpha}
                             anchor={element.anchor}
                         />)
 
                     })}
-                    <Container
-                        x={spriteSize * 6}
-                        y={spriteSize * 3}
-                        anchor={0.5}
-                        zIndex={7}
-                        options={{ background: "#000000" }}
-                        sortableChildren={true}
-                    >
-                        <Sprite
+                    {unitOverlays.map((overlay) => {
+                        return (<Container
+                            key={overlay.id}
+                            x={overlay.x * spriteSize}
+                            y={overlay.y * spriteSize}
+                            zIndex={overlay.z}
+                            anchor={overlay.anchor}
+                            sortableChildren={true}
                             eventMode={"none"}
-                            texture={battleTextures['healthborder']}
-                            x={0}
-                            y={0}
-                            anchor={0}
-                            scale={{x: spriteSize / 32, y: spriteSize / 32}}
-                            alpha={1}
-                        />
-                        <Sprite
-                            eventMode={"none"}
-                            texture={battleTextures['health']}
-                            x={0}
-                            y={0}
-                            anchor={0}
-                            scale={{x: spriteSize / 32, y: spriteSize / 32}}
-                            alpha={1}
-                        />
-                        <BitmapText
-                            text="99"
-                            x={spriteSize / 2}
-                            y={spriteSize / 32 * 14}
-                            anchor={0.5}
-                            scale={spriteSize/128}
-                            style={{ 
-                                fontName: 'OverlayFont',
-                                letterSpacing: 2
-                            }}
-                        />
-                    </Container>
-                    <Container
-                        x={spriteSize * 5}
-                        y={spriteSize * 3}
-                        zIndex={6}
-                        anchor={0.5}
-                        options={{ background: "#000000" }}
-                        sortableChildren={true}
-                    >
-                        <Sprite
-                            eventMode={"none"}
-                            texture={battleTextures['healthborder']}
-                            x={0}
-                            y={0}
-                            zIndex={6}
-                            anchor={0}
-                            scale={{x: spriteSize / 32, y: spriteSize / 32}}
-                            alpha={0}
-                        />
-                        <Sprite
-                            eventMode={"none"}
-                            texture={battleTextures['health']}
-                            x={0}
-                            y={0}
-                            width={32}
-                            zIndex={5}
-                            anchor={0}
-                            scale={{x: spriteSize / 32, y: spriteSize / 32}}
-                            alpha={1}
-                        />
-                        <BitmapText
-                            text="99"
-                            x={spriteSize / 2}
-                            y={spriteSize / 32 * 14}
-                            anchor={0.5}
-                            scale={spriteSize/128}
-                            style={{ 
-                                fontName: 'OverlayFont',
-                                letterSpacing: 2
-                            }}
-                        />
-                    </Container>
+                        >
+                            <Sprite
+                                texture={battleTextures['statoverlay']}
+                                x={0}
+                                y={0}
+                                zIndex={overlay.z}
+                                anchor={0}
+                                scale={{ x: spriteSize / 32, y: spriteSize / 32 }}
+                                alpha={1}
+                            />
+                            <Sprite
+                                texture={battleTextures['health']}
+                                x={spriteSize / 32 * 2}
+                                y={spriteSize / 32 * 3}
+                                zIndex={overlay.z - 1}
+                                anchor={0}
+                                scale={{ x: spriteSize / 32 * overlay.health, y: spriteSize / 32 }}
+                                alpha={1}
+                            />
+                            <Sprite
+                                texture={battleTextures['mana']}
+                                x={spriteSize / 32 * 4}
+                                y={spriteSize / 32 * 7}
+                                zIndex={5}
+                                anchor={0}
+                                scale={{ x: spriteSize / 32 * overlay.mana, y: spriteSize / 32 }}
+                                alpha={1}
+                            />
+                            {/* <BitmapText
+                                text="99"
+                                x={spriteSize / 2}
+                                y={spriteSize / 32 * 14}
+                                anchor={0.5}
+                                scale={spriteSize/128}
+                                style={{ 
+                                    fontName: 'OverlayFont',
+                                    letterSpacing: 2
+                                }}
+                            /> */}
+                        </Container>)
+                    })}
+
                 </Container>
             }
         </Stage>

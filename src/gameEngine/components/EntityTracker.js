@@ -17,10 +17,33 @@ class EntityTracker extends Component {
     }
 }
 
+export class UnitOverlayUI extends EntityTracker {
+    #offset;
+    #z;
+    #healthRate = 0;
+    #manaRate = 0;
+
+    constructor(xOffset, yOffset, z) {
+        super();
+        this.#offset = { x: xOffset, y: yOffset };
+        this.#z = z;
+    }
+
+    get offset() {
+        return this.#offset;
+    }
+
+    get z() {
+        return this.#z;
+    }
+}
+
 export class MouseOver extends EntityTracker {
     #offset;
     #z;
     #sprite;
+    #displayOnMouseOver;
+    #statOverlay;
 
     constructor(xOffset, yOffset, z, sprite, frames, frameDuration) {
         super();
@@ -39,6 +62,10 @@ export class MouseOver extends EntityTracker {
 
     get sprite() {
         return this.#sprite;
+    }
+
+    get displayOnMouseOver() {
+        return this.#displayOnMouseOver;
     }
 }
 
