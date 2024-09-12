@@ -89,13 +89,15 @@ class GameEngine {
         // Read input and update game state
         this.#gameState = game.update(this.#gameState, this.#dungeonLevel, this.#unitPool, pointerInput, this.#entities, this.#components);
 
-        if (pointerInput.up) input.clearPointerInputs();
+        input.clearInputs();
+        this.#unitPool.sortUnits(this.#components);
 
         // Update display
         this.#gameState = display.update(this.#gameState, this.#dungeonLevel, this.#entities, this.#components, deltaTime);
+        
         const { spriteSize } = display;
-
-        ui.update(this.#gameState, this.#entities, this.#components, spriteSize, deltaTime);
+        const { boardSize } = constants;
+        ui.update(this.#gameState, this.#entities, this.#components, spriteSize, deltaTime, this.#unitPool, boardSize);
     }
 }
 

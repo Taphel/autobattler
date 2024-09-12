@@ -42,7 +42,7 @@ export default class UnitPool {
             const scale = { x: -1, y: 1 };
             const speed = 0.015;
 
-            tile.add(playerUnitId, new Tile(position.x, position.y, position.z, scale.x, scale.y, speed));
+            tile.add(playerUnitId, new Tile(position.x, position.y, position.z, scale.x, scale.y, speed, i));
         }
 
         // Initialize player starter units
@@ -75,7 +75,7 @@ export default class UnitPool {
             const scale = { x: 1, y: 1 }
             const speed = 0.015;
 
-            tile.add(encounterUnitId, new Tile(position.x, position.y, position.z, scale.x, scale.y, speed));
+            tile.add(encounterUnitId, new Tile(position.x, position.y, position.z, scale.x, scale.y, speed, i));
         }
 
         for (let i = 0; i < 3; i++) {
@@ -102,5 +102,20 @@ export default class UnitPool {
 
     get encounterUnits() {
         return this.#encounterUnits;
+    }
+
+    sortUnits(components) {
+        const { tile } = components
+        this.#playerUnits.sort((a, b) => {
+            const aTile = tile.get(a);
+            const bTile = tile.get(b);
+            return aTile.value.index - bTile.value.index;
+        })
+
+        this.#encounterUnits.sort((a, b) => {
+            const aTile = tile.get(a);
+            const bTile = tile.get(b);
+            return aTile.value.index - bTile.value.index;
+        })
     }
 }

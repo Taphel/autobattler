@@ -12,6 +12,7 @@ export const battleSlice = createSlice({
         screenWidth: 0,
         screenHeight: 0,
         spriteSize: 0,
+        displayUI: true
     },
     reducers: {
         initializeBattleTiles: (state, action) => {
@@ -31,10 +32,13 @@ export const battleSlice = createSlice({
             state.uiElements = action.payload.uiElements;
             state.unitOverlays = action.payload.unitOverlays;
         },
+        toggleBattleUI: (state, action) => {
+            state.displayUI = action.payload;
+        }
     }
 })
 
 
 // // Action creators are generated for each case reducer function
-export const { initializeBattleTiles, setEntitySprites, updateTileSize, setUiSprites } = battleSlice.actions
+export const { initializeBattleTiles, setEntitySprites, updateTileSize, setUiSprites, toggleBattleUI } = battleSlice.actions
 export default battleSlice.reducer

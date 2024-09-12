@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
 import manifest from "../../data/manifest.js";
 
 export default function BattleScreen({ gameEngine }) {
-    const { tiles, entities, uiElements, unitOverlays, screenWidth, screenHeight, spriteSize } = useSelector((state) => state.battle);
+    const { tiles, entities, uiElements, unitOverlays, screenWidth, screenHeight, spriteSize, displayUI } = useSelector((state) => state.battle);
     const [battleTextures, setBattleTextures] = useState(null);
     const { input } = gameEngine;
 
@@ -28,11 +28,12 @@ export default function BattleScreen({ gameEngine }) {
 
         BitmapFont.from('OverlayFont', new TextStyle({
             fontFamily: 'Arial',
-            fontSize: 48,
+            fontSize: 32,
             stroke: '#000000',
-            strokeThickness: 8,
+            strokeThickness: 4,
             fill: '#ffffff',
-        }), { scaleMode: SCALE_MODES.NEAREST })
+            wordWrap: true,
+        }), { scaleMode: SCALE_MODES.NEAREST, chars: [...BitmapFont.ALPHANUMERIC, '^', '?', 'é'] })
     }, [])
 
     return (
@@ -68,7 +69,7 @@ export default function BattleScreen({ gameEngine }) {
                         return (
                             <Sprite
                                 key={entity.id}
-                                eventMode={entity.interactable ? "static" : "none"}
+                                eventMode={displayUI ? "static" : "none"}
                                 pointerdown={() => { input.pointerDown({ id: entity.id }) }}
                                 pointerover={() => { input.pointerOver({ id: entity.id }) }}
                                 pointerout={input.pointerOut}
@@ -133,20 +134,74 @@ export default function BattleScreen({ gameEngine }) {
                                 scale={{ x: spriteSize / 32 * overlay.mana, y: spriteSize / 32 }}
                                 alpha={1}
                             />
-                            {/* <BitmapText
-                                text="99"
-                                x={spriteSize / 2}
-                                y={spriteSize / 32 * 14}
-                                anchor={0.5}
-                                scale={spriteSize/128}
-                                style={{ 
-                                    fontName: 'OverlayFont',
-                                    letterSpacing: 2
-                                }}
-                            /> */}
                         </Container>)
                     })}
 
+                    { displayUI && 
+                        <Container
+                        x={spriteSize * 13}
+                        y={spriteSize * 5}
+                        zIndex={5}
+                        sortableChildren={true}
+                        eventMode={"static"}
+                        pointerdown={() => input.combatStart()}
+                        >
+                            <Sprite
+                                texture={battleTextures['startbutton']}
+                                x={0}
+                                y={0}
+                                zIndex={5}
+                                anchor={0}
+                                scale={{ x: spriteSize / 32, y: spriteSize / 32 }}
+                                alpha={1}
+                            />
+                            <BitmapText
+                                text="FIGHT"
+                                x={spriteSize}
+                                y={spriteSize / 32 * 14}
+                                zIndex={6}
+                                anchor={0.5}
+                                scale={spriteSize / 64}
+                                style={{
+                                    fontName: 'OverlayFont',
+                                    letterSpacing: 2
+                                }}
+                            />
+                        </Container>
+                    }
+                    
+                    <Container
+                        x={spriteSize / 2}
+                        y={spriteSize * (screenHeight - 2.5)}
+                        zIndex={5}
+                        sortableChildren={true}
+                        eventMode={"static"}
+                    >
+                        <Sprite
+                            texture={battleTextures['menuwindow']}
+                            x={0}
+                            y={0}
+                            zIndex={5}
+                            anchor={0}
+                            scale={{ x: spriteSize / 32, y: spriteSize / 32 }}
+                            alpha={1}
+                        />
+                        <BitmapText
+                            text="Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test "
+                            x={spriteSize / 4}
+                            y={spriteSize / 4}
+                            width={spriteSize * 15}
+                            height={spriteSize * 4}
+                            zIndex={6}
+                            anchor={0}
+                            scale={spriteSize / 64}
+                            style={{
+                                fontName: 'OverlayFont',
+                                letterSpacing: 2,
+                                maxWidth: 960
+                            }}
+                        />
+                    </Container>
                 </Container>
             }
         </Stage>

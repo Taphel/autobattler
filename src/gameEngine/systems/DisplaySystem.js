@@ -1,7 +1,7 @@
 // Redux imports
 import store from "../../store/store.js";
 import { initializeMapNodes, updateMapAlpha, updateMapCursors, updateNodeSize } from "../../store/slices/mapSlice.js";
-import { initializeBattleTiles, setEntitySprites, updateTileSize } from "../../store/slices/battleSlice.js";
+import { initializeBattleTiles, setEntitySprites, updateTileSize, toggleBattleUI } from "../../store/slices/battleSlice.js";
 import { setGameState } from "../../store/slices/gameStateSlice.js";
 
 /// ECS
@@ -227,7 +227,7 @@ export default class DisplaySystem extends System {
     }
 
     update(gameState, dungeonLevel, entities, components, deltaTime) {
-        const { tile, transform, animation, unitInfo, mouseDrag } = components;
+        const {transform, animation} = components;
         const cursorDispatchData = [];
         let newState = gameState;
         switch (gameState) {
@@ -331,69 +331,78 @@ export default class DisplaySystem extends System {
                 store.dispatch(setGameState(newState));
                 return newState;
             case GameState.idle:
-                const entityDispatchData = [];
-                let mouseDragId;
-                entities.forEach(entity => {
-                    if (mouseDrag.has(entity)) {
-                        mouseDragId = mouseDrag.get(entity).targetId;
-                    }
-
-                    let entityTransform, entityAnimation;
-                    if (tile.has(entity)) {
-                        // update or set transform component based on tile data
-                        const { position, scale, speed } = tile.get(entity).value;
-                        if (transform.has(entity)) {
-                            entityTransform = transform.get(entity);
-                            entityTransform.setTarget(position.x, position.y);
-                            entityTransform.update(deltaTime);
-                        } else {
-                            entityTransform = new Transform(position.x, position.y, position.z, speed, scale.x, scale.y);
-                            transform.add(entity, entityTransform);
-                        }
-
-                        // update or set animation component based on unitInfo data
-                        if (unitInfo.has(entity)) {
-                            if (animation.has(entity)) {
-                                entityAnimation = animation.get(entity);
-                                entityAnimation.update(deltaTime);
-                            } else {
-                                const unitData = unitInfo.get(entity);
-                                const { path, frames, speed } = unitData.sprite;
-                                entityAnimation = new Animation(`${path}`, frames, speed);
-                                animation.add(entity, entityAnimation);
-                            }
-                        } else animation.remove(entity);
-                    }
-
-                    // Create dispatch data for this entity
-                    if (entityTransform) {
-                        const { x, y, z } = entityTransform.position;
-                        const { anchor, scale } = entityTransform;
-                        let entitySprite;
-                        if (entityAnimation) {
-                            entitySprite = entityAnimation.sprite;
-                        } else entitySprite = `empty`;
-
-                        entityDispatchData.push({
-                            id: entity,
-                            x: x,
-                            y: y,
-                            z: z,
-                            sprite: entitySprite,
-                            alpha: 1,
-                            scale: scale,
-                            anchor: anchor,
-                            interactable: tile.has(entity)
-                        })
-                    }
-                })
-
-                // Modify alpha of the dragged entity
-                const selectedEntity = entityDispatchData.find(entity => entity.id === mouseDragId);
-                if (selectedEntity) selectedEntity.alpha = 0.5;
-                store.dispatch(setEntitySprites(entityDispatchData));
+                store.dispatch(toggleBattleUI(true));
+                this.#battleSpriteUpdate(entities, components, deltaTime)
                 return GameState.idle;
+            case GameState.battle:
+                store.dispatch(toggleBattleUI(false));
+                this.#battleSpriteUpdate(entities, components, deltaTime)
+                return GameState.battle;
         }
+    }
+
+    #battleSpriteUpdate(entities, components, deltaTime) {
+        const entityDispatchData = [];
+        const { mouseDrag, tile, transform, animation, unitInfo } = components;
+        let mouseDragId;
+        entities.forEach(entity => {
+            if (mouseDrag.has(entity)) {
+                mouseDragId = mouseDrag.get(entity).targetId;
+            }
+
+            let entityTransform, entityAnimation;
+            if (tile.has(entity)) {
+                // update or set transform component based on tile data
+                const { position, scale, speed, index } = tile.get(entity).value;
+                if (transform.has(entity)) {
+                    entityTransform = transform.get(entity);
+                    entityTransform.setTarget(position.x, position.y);
+                    entityTransform.update(deltaTime);
+                } else {
+                    entityTransform = new Transform(position.x, position.y, position.z, speed, scale.x, scale.y);
+                    transform.add(entity, entityTransform);
+                }
+
+                // update or set animation component based on unitInfo data
+                if (unitInfo.has(entity)) {
+                    if (animation.has(entity)) {
+                        entityAnimation = animation.get(entity);
+                        entityAnimation.update(deltaTime);
+                    } else {
+                        const unitData = unitInfo.get(entity);
+                        const { path, frames, speed } = unitData.sprite;
+                        entityAnimation = new Animation(`${path}`, frames, speed);
+                        animation.add(entity, entityAnimation);
+                    }
+                } else animation.remove(entity);
+            }
+
+            // Create dispatch data for this entity
+            if (entityTransform) {
+                const { x, y, z } = entityTransform.position;
+                const { anchor, scale } = entityTransform;
+                let entitySprite;
+                if (entityAnimation) {
+                    entitySprite = entityAnimation.sprite;
+                } else entitySprite = `empty`;
+
+                entityDispatchData.push({
+                    id: entity,
+                    x: x,
+                    y: y,
+                    z: z,
+                    sprite: entitySprite,
+                    alpha: 1,
+                    scale: scale,
+                    anchor: anchor
+                })
+            }
+        })
+
+        // Modify alpha of the dragged entity
+        const selectedEntity = entityDispatchData.find(entity => entity.id === mouseDragId);
+        if (selectedEntity) selectedEntity.alpha = 0.5;
+        store.dispatch(setEntitySprites(entityDispatchData));
     }
 
     #clearMapCursors(components) {

@@ -9,7 +9,9 @@ export default class InputSystem extends System {
     #pointerDownTarget = null;
     #pointerPosition;
     #pointerUp = false;
-    pointerOut
+    #startButtonClicked = false;
+    pointerOut;
+    
     
     constructor () {
         super();
@@ -39,9 +41,17 @@ export default class InputSystem extends System {
         this.#pointerPosition = target;
     }
 
-    clearPointerInputs() {
-        this.#pointerUp = false;
-        this.#pointerDownTarget = null;
+    combatStart() {
+        this.#startButtonClicked = true;
+    }
+
+    clearInputs() {
+        if (this.#pointerUp) {
+            this.#pointerUp = false;
+            this.#pointerDownTarget = null;
+        }
+
+        this.#startButtonClicked = false;
     }
 
     update() {
@@ -50,7 +60,8 @@ export default class InputSystem extends System {
             over: this.#pointerOverTarget,
             down: this.#pointerDownTarget,
             up: this.#pointerUp,
-            pointerPosition: this.#pointerPosition
+            pointerPosition: this.#pointerPosition,
+            start: this.#startButtonClicked
         }
     }
 }

@@ -5,7 +5,7 @@ export default class UnitStats extends Component {
     #level;
     #baseAttack;
     #baseHp;
-    #damage = Math.floor(Math.random() * 10);
+    #damage = 0;
     #effects = [];
     #trait;
 

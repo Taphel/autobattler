@@ -201,6 +201,14 @@ const manifest = {
                 {
                     name: "statoverlay",
                     src: "/sprites/battle/ui/statoverlay.png"
+                },
+                {
+                    name: "startbutton",
+                    src: "/sprites/battle/ui/startbutton.png"
+                },
+                {
+                    name: "menuwindow",
+                    src: "/sprites/battle/ui/menuwindow.png"
                 }
             ]
         }

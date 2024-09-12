@@ -32,7 +32,7 @@ export default class GameSystem extends System {
             case GameState.roomStart:
                 return GameState.roomStart;
             case GameState.idle:
-                const { animation, transform, unitInfo, unitStats, unitSkill, mouseDrag, mouseOver } = components;
+                const { tile, mouseDrag, mouseOver, unitInfo } = components;
                 let mouseOverId, mouseDragId
                 entities.forEach(entity => {
                     if (mouseOver.has(entity)) {
@@ -59,48 +59,22 @@ export default class GameSystem extends System {
 
                 if (up && mouseDragId !== undefined && mouseOverId !== undefined && unitPool.playerUnits.includes(mouseOverId)) {
 
-                    const startComponents = {
-                        animation: animation.has(mouseDragId) ? animation.get(mouseDragId) : null,
-                        transform: transform.has(mouseDragId) ? transform.get(mouseDragId) : null,
-                        unitInfo: unitInfo.has(mouseDragId) ? unitInfo.get(mouseDragId) : null,
-                        unitStats: unitStats.has(mouseDragId) ? unitStats.get(mouseDragId) : null,
-                        unitSkill: unitSkill.has(mouseDragId) ? unitSkill.get(mouseDragId) : null,
-                    }
-
-                    const endComponents = {
-                        animation: animation.has(mouseOverId) ? animation.get(mouseOverId) : null,
-                        transform: transform.has(mouseOverId) ? transform.get(mouseOverId) : null,
-                        unitInfo: unitInfo.has(mouseOverId) ? unitInfo.get(mouseOverId) : null,
-                        unitStats: unitStats.has(mouseOverId) ? unitStats.get(mouseOverId) : null,
-                        unitSkill: unitSkill.has(mouseOverId) ? unitSkill.get(mouseOverId) : null,
-                        
-                    }
+                    const startTile = tile.has(mouseDragId) ? tile.get(mouseDragId) : null
+                    const endTile = tile.has(mouseOverId) ? tile.get(mouseOverId) : null   
+                    
 
                     // Cleanup component set references
-                    animation.remove(mouseDragId)
-                    animation.remove(mouseOverId)
-                    transform.remove(mouseDragId)
-                    transform.remove(mouseOverId)
-                    unitInfo.remove(mouseDragId)
-                    unitInfo.remove(mouseOverId)
-                    unitStats.remove(mouseDragId)
-                    unitStats.remove(mouseOverId)
-                    unitSkill.remove(mouseDragId)
-                    unitSkill.remove(mouseOverId)
+                    tile.remove(mouseDragId)
+                    tile.remove(mouseOverId)
 
                     // swap components
-                    if (startComponents.animation) animation.add(mouseOverId, startComponents.animation);
-                    if (endComponents.animation) animation.add(mouseDragId, endComponents.animation);
-                    if (startComponents.transform) transform.add(mouseOverId, startComponents.transform);
-                    if (endComponents.transform) transform.add(mouseDragId, endComponents.transform);
-                    if (startComponents.unitInfo) unitInfo.add(mouseOverId, startComponents.unitInfo);
-                    if (endComponents.unitInfo) unitInfo.add(mouseDragId, endComponents.unitInfo);
-                    if (startComponents.unitStats) unitStats.add(mouseOverId, startComponents.unitStats);
-                    if (endComponents.unitStats) unitStats.add(mouseDragId, endComponents.unitStats);
-                    if (startComponents.unitSkill) unitSkill.add(mouseOverId, startComponents.unitSkill);
-                    if (endComponents.unitSkill) unitSkill.add(mouseDragId, endComponents.unitSkill);
+                    if (startTile) tile.add(mouseOverId, startTile);
+                    if (endTile) tile.add(mouseDragId, endTile);
                 }
-                return GameState.idle;
+                console.log(pointerInput.start)
+                return pointerInput.start ? GameState.battle : GameState.idle
+            case GameState.battle:
+                return GameState.battle;
         }
     }
 }

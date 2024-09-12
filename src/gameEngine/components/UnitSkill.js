@@ -6,7 +6,7 @@ export default class UnitSkill extends Component {
     constructor(unitData) {
         super();
         const { cost } = unitData
-        this.#mana = { current: Math.floor(Math.random() * cost), max: cost };
+        this.#mana = { current: cost, max: cost };
     }
 
     get mana() {
