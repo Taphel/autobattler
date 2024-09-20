@@ -22,6 +22,7 @@ class GameEngine {
         unitInfo: new ComponentSet(100),
         unitStats: new ComponentSet(100),
         unitSkill: new ComponentSet(100),
+        unitAI: new ComponentSet(100),
         unitOverlayUI: new ComponentSet(100),
         mouseOver: new ComponentSet(1),
         mouseDrag: new ComponentSet(1)
@@ -87,16 +88,15 @@ class GameEngine {
         // Register inputs
         const pointerInput = input.update(this.#gameState);
         // Read input and update game state
-        this.#gameState = game.update(this.#gameState, this.#dungeonLevel, this.#unitPool, pointerInput, this.#entities, this.#components);
-
+        const { boardSize } = constants;
+        this.#gameState = game.update(this.#gameState, this.#dungeonLevel, this.#unitPool, pointerInput, this.#entities, this.#components, boardSize, deltaTime);
+        
         input.clearInputs();
-        this.#unitPool.sortUnits(this.#components);
 
         // Update display
         this.#gameState = display.update(this.#gameState, this.#dungeonLevel, this.#entities, this.#components, deltaTime);
         
         const { spriteSize } = display;
-        const { boardSize } = constants;
         ui.update(this.#gameState, this.#entities, this.#components, spriteSize, deltaTime, this.#unitPool, boardSize);
     }
 }

@@ -30,6 +30,9 @@ export default class UnitStats extends Component {
     }
 
     update(actionResult) {
-        
+        this.#damage += actionResult;
+
+        // Death check return value
+        return this.hp.current ? false : true
     }
 }

@@ -48,9 +48,17 @@ export default class UISystem extends System {
     }
 
     update(gameState, entities, components, spriteSize, deltaTime, unitPool, boardSize) {
-        const { unitOverlayUI } = components
+        const { tile, unitOverlayUI } = components
         // Update overlay target ids to units on the board
-        const unitIds = [ ...unitPool.playerUnits.slice(0, boardSize), ...unitPool.encounterUnits ]
+        
+
+        const unitIds = [
+            ...unitPool.playerUnits.filter(unit => {
+                const unitTile = tile.get(unit);
+                return unitTile.value.index < boardSize;
+            }),
+            ...unitPool.encounterUnits
+        ]
         const overlayIds = [];
         entities.forEach(entity => {
             if (unitOverlayUI.has(entity)) {
@@ -134,8 +142,7 @@ export default class UISystem extends System {
 
                 if (targetId !== null && transform.has(targetId)) {
                     // Update UI Overlay Position
-                    const targetPosition = transform.get(targetId).position;
-                    
+                    const targetPosition = transform.get(targetId).position; 
                     if (transform.has(entity)) {
                         entityTransform = transform.get(entity);
                         entityTransform.setTarget(targetPosition.x + offset.x, targetPosition.y + offset.y);
@@ -150,20 +157,23 @@ export default class UISystem extends System {
                 if (unitStats.has(targetId)) targetStats = unitStats.get(targetId);
                 if (unitSkill.has(targetId)) targetSkill = unitSkill.get(targetId);
                 if (entityTransform && targetStats && targetSkill) {
-                    const { x, y, z } = entityTransform.position;
-                    const anchor = { x: 0.5, y: 0.5 }
-                    const healthRate = targetStats.hp.current / targetStats.hp.max;
-                    const manaRate = targetSkill.mana.current / targetSkill.mana.max;
+                    if (targetStats.hp.current > 0) {
+                        const { x, y, z } = entityTransform.position;
+                        const anchor = { x: 0.5, y: 0.5 }
+                        const healthRate = targetStats.hp.current / targetStats.hp.max;
+                        const manaRate = targetSkill.mana.current / targetSkill.mana.max;
 
-                    uiDispatchData.unitOverlays.push({
-                        id: entity,
-                        x: x,
-                        y: y,
-                        z: z,
-                        anchor: anchor,
-                        health: healthRate,
-                        mana: manaRate
-                    })
+                        uiDispatchData.unitOverlays.push({
+                            id: entity,
+                            x: x,
+                            y: y,
+                            z: z,
+                            anchor: anchor,
+                            health: healthRate,
+                            mana: manaRate
+                        })
+                    }
+
                 }
             }
 

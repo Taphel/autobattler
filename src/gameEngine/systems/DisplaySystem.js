@@ -332,18 +332,20 @@ export default class DisplaySystem extends System {
                 return newState;
             case GameState.idle:
                 store.dispatch(toggleBattleUI(true));
-                this.#battleSpriteUpdate(entities, components, deltaTime)
+                this.#battleSpriteUpdate(entities, components, deltaTime);
                 return GameState.idle;
-            case GameState.battle:
+            case GameState.battleStart:
                 store.dispatch(toggleBattleUI(false));
-                this.#battleSpriteUpdate(entities, components, deltaTime)
+                return GameState.battleStart;
+            case GameState.battle:
+                this.#battleSpriteUpdate(entities, components, deltaTime);
                 return GameState.battle;
         }
     }
 
     #battleSpriteUpdate(entities, components, deltaTime) {
         const entityDispatchData = [];
-        const { mouseDrag, tile, transform, animation, unitInfo } = components;
+        const { mouseDrag, tile, transform, animation, unitInfo, unitStats } = components;
         let mouseDragId;
         entities.forEach(entity => {
             if (mouseDrag.has(entity)) {
@@ -353,27 +355,31 @@ export default class DisplaySystem extends System {
             let entityTransform, entityAnimation;
             if (tile.has(entity)) {
                 // update or set transform component based on tile data
-                const { position, scale, speed, index } = tile.get(entity).value;
                 if (transform.has(entity)) {
                     entityTransform = transform.get(entity);
-                    entityTransform.setTarget(position.x, position.y);
-                    entityTransform.update(deltaTime);
+                    if (entityTransform.target) {
+                        entityTransform.update(deltaTime);
+                    }   
                 } else {
+                    const { position, scale, speed } = tile.get(entity).value;
                     entityTransform = new Transform(position.x, position.y, position.z, speed, scale.x, scale.y);
                     transform.add(entity, entityTransform);
                 }
 
                 // update or set animation component based on unitInfo data
-                if (unitInfo.has(entity)) {
-                    if (animation.has(entity)) {
-                        entityAnimation = animation.get(entity);
-                        entityAnimation.update(deltaTime);
-                    } else {
-                        const unitData = unitInfo.get(entity);
-                        const { path, frames, speed } = unitData.sprite;
-                        entityAnimation = new Animation(`${path}`, frames, speed);
-                        animation.add(entity, entityAnimation);
-                    }
+                if (unitInfo.has(entity) && unitStats.has(entity)) {
+                    const entityStats = unitStats.get(entity);
+                    if (entityStats.hp.current > 0) {
+                        if (animation.has(entity)) {
+                            entityAnimation = animation.get(entity);
+                            entityAnimation.update(deltaTime);
+                        } else {
+                            const unitData = unitInfo.get(entity);
+                            const { path, frames, speed } = unitData.sprite;
+                            entityAnimation = new Animation(`${path}`, frames, speed);
+                            animation.add(entity, entityAnimation);
+                        }
+                    } else animation.remove(entity);
                 } else animation.remove(entity);
             }
 

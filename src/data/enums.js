@@ -71,6 +71,6 @@ export class GameState extends Enum {
     static map = "GAMESTATE_MAP";
     static roomStart = "GAMESTATE_ROOMSTART";
     static idle = "GAMESTATE_IDLE";
+    static battleStart = "GAMESTATE_BATTLESTART"
     static battle = "GAMESTATE_BATTLE";
-
 }

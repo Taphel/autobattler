@@ -2,6 +2,7 @@
 import UnitInfo from "../../components/UnitInfo.js";
 import UnitStats from "../../components/UnitStats.js";
 import UnitSkill from "../../components/UnitSkill.js";
+import UnitAI from "../../components/UnitAI.js";
 import Tile from "../../components/Tile.js";
 
 // Libraries import
@@ -40,24 +41,26 @@ export default class UnitPool {
                 z: SpriteLayer.unit
             }
             const scale = { x: -1, y: 1 };
-            const speed = 0.015;
+            const speed = 0.0075;
 
             tile.add(playerUnitId, new Tile(position.x, position.y, position.z, scale.x, scale.y, speed, i));
         }
 
         // Initialize player starter units
-        const { unitInfo, unitStats, unitSkill } = components;
+        const { unitInfo, unitStats, unitSkill, unitAI } = components;
         for (let i = 0; i < startPlayerUnits; i++) {
             const unitData = this.#shopUnits.shift();
             const unitComponents = {
                 info: new UnitInfo(unitData),
                 stats: new UnitStats(unitData),
-                skill: new UnitSkill(unitData)
+                skill: new UnitSkill(unitData),
+                ai: new UnitAI()
             }
 
             unitInfo.add(this.#playerUnits[i], unitComponents.info);
             unitStats.add(this.#playerUnits[i], unitComponents.stats);
             unitSkill.add(this.#playerUnits[i], unitComponents.skill);
+            unitAI.add(this.#playerUnits[i], unitComponents.ai)
         }
 
         // Allocate enemy unitInfo entity IDs
@@ -73,7 +76,7 @@ export default class UnitPool {
                 z: 4
             }
             const scale = { x: 1, y: 1 }
-            const speed = 0.015;
+            const speed = 0.0075;
 
             tile.add(encounterUnitId, new Tile(position.x, position.y, position.z, scale.x, scale.y, speed, i));
         }
@@ -83,12 +86,14 @@ export default class UnitPool {
             const unitComponents = {
                 info: new UnitInfo(unitData),
                 stats: new UnitStats(unitData),
-                skill: new UnitSkill(unitData)
+                skill: new UnitSkill(unitData),
+                ai: new UnitAI()
             }
             
             unitInfo.add(this.#encounterUnits[i], unitComponents.info);
             unitStats.add(this.#encounterUnits[i], unitComponents.stats);
             unitSkill.add(this.#encounterUnits[i], unitComponents.skill);
+            unitAI.add(this.#encounterUnits[i], unitComponents.ai);
         }
     }
 
